@@ -1,0 +1,31 @@
+{
+    "name": "popphp/pop-dom",
+    "description": "Pop DOM Component for Pop PHP Framework 2",
+    "keywords": [
+        "DOM",
+        "document object model",
+        "dom generation",
+        "dom manipulation",
+        "php",
+        "pop",
+        "pop php",
+        "pop php 2"
+    ],
+    "homepage": "http://www.popphp.org/",
+    "license": "New BSD",
+    "authors": [
+        {
+            "name": "Nick Sagona",
+            "email": "dev@nolainteractive.com",
+            "homepage": "http://www.nolainteractive.com/"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pop\\": "src/"
+        }
+    }
+}
