@@ -1,6 +1,6 @@
 {
     "name": "popphp/pop-dom",
-    "description": "Pop DOM Component for Pop PHP Framework 2",
+    "description": "Pop DOM Component for Pop PHP Framework",
     "keywords": [
         "DOM",
         "document object model",
@@ -8,8 +8,7 @@
         "dom manipulation",
         "php",
         "pop",
-        "pop php",
-        "pop php 2"
+        "pop php"
     ],
     "homepage": "http://www.popphp.org/",
     "license": "New BSD",
@@ -26,6 +25,11 @@
     "autoload": {
         "psr-4": {
             "Pop\\Dom\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0.x-dev"
         }
     }
 }
