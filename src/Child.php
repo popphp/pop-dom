@@ -199,6 +199,20 @@ class Child extends AbstractNode
     }
 
     /**
+     * Remove an attribute from the child element object
+     *
+     * @param  string $a
+     * @return Child
+     */
+    public function removeAttribute($a)
+    {
+        if (isset($this->attributes[$a])) {
+            unset($this->attributes[$a]);
+        }
+        return $this;
+    }
+
+    /**
      * Render the child and its child nodes.
      *
      * @param  boolean $ret
