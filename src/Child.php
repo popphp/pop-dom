@@ -266,7 +266,7 @@ class Child extends AbstractNode
                 $this->output .= (null !== $this->nodeValue) ? (str_repeat('    ', $newDepth) . "{$indent}{$this->nodeValue}\n{$origIndent}</{$this->nodeName}>\n") : "{$origIndent}</{$this->nodeName}>\n";
             }
 
-            // Else, render the child node.
+        // Else, render the child node.
         } else {
             if ((null !== $this->nodeValue) || ($this->nodeName == 'textarea')) {
                 $this->output .= ">";
