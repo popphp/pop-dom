@@ -44,7 +44,7 @@ echo $div;
 </div>
 ```
 
-### Using a configuration array to construct a complex DOM node fragment
+### Use a config array to construct a complex DOM node fragment
 
 ```php
 $children = [
@@ -111,7 +111,10 @@ $title = new Child('title', 'This is the title');
 
 // Meta tag
 $meta = new Child('meta');
-$meta->setAttributes(['http-equiv' => 'Content-Type', 'content' => 'text/html; charset=utf-8']);
+$meta->setAttributes([
+    'http-equiv' => 'Content-Type',
+    'content'    => 'text/html; charset=utf-8'
+]);
 
 // Head element
 $head = new Child('head');
