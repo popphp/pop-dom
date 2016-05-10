@@ -2,7 +2,7 @@ pop-dom
 =======
 
 [![Build Status](https://travis-ci.org/popphp/pop-dom.svg?branch=master)](https://travis-ci.org/popphp/pop-dom)
-[![Coverage Status](http://www.popphp.org/cc/coverage.php?comp=pop-dom)](http://www.popphp.org/cc/pop-dom/)
+[![Coverage Status](http://cc.popphp.org/coverage.php?comp=pop-dom)](http://cc.popphp.org/pop-dom/)
 
 OVERVIEW
 --------
@@ -136,7 +136,7 @@ $body->addChild($div);
 $html = new Child('html');
 $html->addChildren([$head, $body]);
 
-// Create and render the DOM document with HTTP headers 
+// Create and render the DOM document with HTTP headers
 $doc = new Document(Document::HTML5, $html);
 $doc->render();
 ```
