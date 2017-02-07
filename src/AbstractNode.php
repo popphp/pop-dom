@@ -21,7 +21,7 @@ namespace Pop\Dom;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.1.0
+ * @version    3.0.0
  */
 abstract class AbstractNode
 {
@@ -33,7 +33,7 @@ abstract class AbstractNode
     protected $childNodes = [];
 
     /**
-     * Indentation for formatting purposes.
+     * Indentation for formatting purposes
      * @var string
      */
     protected $indent = null;
@@ -45,7 +45,7 @@ abstract class AbstractNode
     protected $output = null;
 
     /**
-     * Return the indent.
+     * Return the indent
      *
      * @return string
      */
@@ -55,7 +55,7 @@ abstract class AbstractNode
     }
 
     /**
-     * Set the indent.
+     * Set the indent
      *
      * @param  string $indent
      * @return mixed
@@ -67,33 +67,26 @@ abstract class AbstractNode
     }
 
     /**
-     * Add a child to the object.
+     * Add a child to the object
      *
      * @param  mixed $c
      * @throws \InvalidArgumentException
      * @return mixed
      */
-    public function addChild($c)
+    public function addChild(Child $c)
     {
-        if ($c instanceof Child) {
-            $this->childNodes[] = $c;
-        } else if (is_array($c)) {
-            $this->childNodes[] = Child::factory($c);
-        } else {
-            throw new \InvalidArgumentException('The argument passed must be an instance of Pop\Dom\Child or a child configuration array.');
-        }
-
+        $this->childNodes[] = $c;
         return $this;
     }
 
     /**
-     * Add children to the object.
+     * Add children to the object
      *
      * @param  array $c
      * @throws Exception
      * @return mixed
      */
-    public function addChildren($c)
+    public function addChildren(array $c)
     {
         foreach ($c as $child) {
             $this->addChild($child);
@@ -109,11 +102,11 @@ abstract class AbstractNode
      */
     public function hasChildren()
     {
-        return (count($this->childNodes) > 0) ? true : false;
+        return (count($this->childNodes) > 0);
     }
 
     /**
-     * Get the child nodes of the object.
+     * Get the child nodes of the object
      *
      * @param int $i
      * @return Child
@@ -124,7 +117,7 @@ abstract class AbstractNode
     }
 
     /**
-     * Get the child nodes of the object.
+     * Get the child nodes of the object
      *
      * @return array
      */
@@ -134,7 +127,7 @@ abstract class AbstractNode
     }
 
     /**
-     * Remove all child nodes from the object.
+     * Remove all child nodes from the object
      *
      * @param  int  $i
      * @return void
@@ -147,7 +140,7 @@ abstract class AbstractNode
     }
 
     /**
-     * Remove all child nodes from the object.
+     * Remove all child nodes from the object
      *
      * @return void
      */

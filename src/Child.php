@@ -21,7 +21,7 @@ namespace Pop\Dom;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.1.0
+ * @version    3.0.0
  */
 class Child extends AbstractNode
 {
@@ -39,7 +39,7 @@ class Child extends AbstractNode
     protected $nodeValue = null;
 
     /**
-     * Flag to render children before node value or not.
+     * Flag to render children before node value or not
      * @var boolean
      */
     protected $childrenFirst = false;
@@ -57,55 +57,39 @@ class Child extends AbstractNode
      *
      * @param  string  $name
      * @param  string  $value
-     * @param  mixed   $childNode
-     * @param  boolean $first
-     * @param  string  $indent
-     * @return Child
+     * @param  array   $options
      */
-    public function __construct($name, $value = null, $childNode = null, $first = false, $indent = null)
+    public function __construct($name, $value = null, array $options = [])
     {
         $this->nodeName      = $name;
         $this->nodeValue     = $value;
-        $this->childrenFirst = $first;
 
-        if (null !== $childNode) {
-            $this->addChild($childNode);
+        if (isset($options['childrenFirst'])) {
+            $this->childrenFirst = (bool)$options['childrenFirst'];
         }
-
-        $this->indent = $indent;
+        if (isset($options['indent'])) {
+            $this->indent = (string)$options['indent'];
+        }
+        if (isset($options['attributes'])) {
+            $this->setAttributes($options['attributes']);
+        }
     }
 
     /**
      * Static factory method to create a child object
      *
-     * @param  array $c
-     * @throws Exception
+     * @param  string  $name
+     * @param  string  $value
+     * @param  array   $options
      * @return Child
      */
-    public static function factory(array $c)
+    public static function create($name, $value = null, array $options = [])
     {
-        if (!isset($c['nodeName'])) {
-            throw new Exception('Error: At least the \'nodeName\' must be set within the child configuration array.');
-        }
-        $nodeName   = $c['nodeName'];
-        $nodeValue  = (isset($c['nodeValue']) ? $c['nodeValue'] : null);
-        $childFirst = (isset($c['childrenFirst']) ? $c['childrenFirst'] : false);
-        $indent     = (isset($c['indent']) ? $c['indent'] : null);
-
-        $child = new static($nodeName, $nodeValue, null, $childFirst, $indent);
-        if (isset($c['attributes'])) {
-            $child->setAttributes($c['attributes']);
-        }
-
-        if (isset($c['childNodes'])) {
-            $child->addChildren($c['childNodes']);
-        }
-
-        return $child;
+        return new self($name, $value, $options);
     }
 
     /**
-     * Return the child node name.
+     * Return the child node name
      *
      * @return string
      */
@@ -115,7 +99,7 @@ class Child extends AbstractNode
     }
 
     /**
-     * Return the child node value.
+     * Return the child node value
      *
      * @return string
      */
@@ -125,7 +109,7 @@ class Child extends AbstractNode
     }
 
     /**
-     * Set the child node name.
+     * Set the child node name
      *
      * @param  string $name
      * @return Child
@@ -137,7 +121,7 @@ class Child extends AbstractNode
     }
 
     /**
-     * Set the child node value.
+     * Set the child node value
      *
      * @param  string $value
      * @return Child
@@ -149,7 +133,7 @@ class Child extends AbstractNode
     }
 
     /**
-     * Set an attribute for the child element object.
+     * Set an attribute for the child element object
      *
      * @param  string $a
      * @param  string $v
@@ -162,7 +146,7 @@ class Child extends AbstractNode
     }
 
     /**
-     * Set an attribute or attributes for the child element object.
+     * Set an attribute or attributes for the child element object
      *
      * @param  array $a
      * @return Child
@@ -176,7 +160,7 @@ class Child extends AbstractNode
     }
 
     /**
-     * Get the attribute of the child object.
+     * Get the attribute of the child object
      *
      * @param  string $name
      * @return string
@@ -187,7 +171,7 @@ class Child extends AbstractNode
     }
 
     /**
-     * Get the attributes of the child object.
+     * Get the attributes of the child object
      *
      * @return array
      */
@@ -207,6 +191,28 @@ class Child extends AbstractNode
         if (isset($this->attributes[$a])) {
             unset($this->attributes[$a]);
         }
+        return $this;
+    }
+
+    /**
+     * Determine if child nodes render first, before the node value
+     *
+     * @return boolean
+     */
+    public function isChildrenFirst()
+    {
+        return $this->childrenFirst;
+    }
+
+    /**
+     * Set whether child nodes render first, before the node value
+     *
+     * @param  bool $first
+     * @return string
+     */
+    public function setChildrenFirst($first)
+    {
+        $this->childrenFirst = (bool)$first;
         return $this;
     }
 

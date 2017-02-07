@@ -21,82 +21,40 @@ namespace Pop\Dom;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.1.0
+ * @version    3.0.0
  */
 class Document extends AbstractNode
 {
 
     /**
-     * Constant to use the HTML trans doctype
-     * @var int
-     */
-    const HTML_TRANS = 0;
-
-    /**
-     * Constant to use HTML strict doctype
-     * @var int
-     */
-    const HTML_STRICT = 1;
-
-    /**
-     * Constant to use the HTML frames doctype
-     * @var int
-     */
-    const HTML_FRAMES = 2;
-
-    /**
-     * Constant to use the XHTML trans doctype
-     * @var int
-     */
-    const XHTML_TRANS = 3;
-
-    /**
-     * Constant to use the XHTML strict doctype
-     * @var int
-     */
-    const XHTML_STRICT = 4;
-
-    /**
-     * Constant to use the XHTML frames doctype
-     * @var int
-     */
-    const XHTML_FRAMES = 5;
-
-    /**
-     * Constant to use the XHTML 1.1 doctype
-     * @var int
-     */
-    const XHTML11 = 6;
-
-    /**
      * Constant to use the XML doctype
-     * @var int
+     * @var string
      */
-    const XML = 7;
+    const XML = 'XML';
 
     /**
-     * Constant to use the HTML5 doctype
-     * @var int
+     * Constant to use the HTML doctype
+     * @var string
      */
-    const HTML5 = 8;
+    const HTML = 'HTML';
 
     /**
-     * Constant to use the RSS doctype
-     * @var int
+     * Constant to use the XML doctype, RSS content-type
+     * @var string
      */
-    const RSS = 9;
+    const RSS = 'RSS';
 
     /**
-     * Constant to use the ATOM doctype
-     * @var int
+     * Constant to use the XML doctype, Atom content-type
+     * @var string
      */
-    const ATOM = 10;
+    const ATOM = 'ATOM';
 
     /**
      * Document type
      * @var string
      */
-    protected $doctype = 7;
+    protected $doctype = 'XML';
 
     /**
      * Document content type
@@ -115,17 +73,8 @@ class Document extends AbstractNode
      * @var array
      */
     protected static $doctypes = [
-        "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n",
-        "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\n",
-        "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\" \"http://www.w3.org/TR/html4/frameset.dtd\">\n",
-        "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n",
-        "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n",
-        "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Frameset//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd\">\n",
-        "<?xml version=\"1.0\" encoding=\"[{charset}]\"?>\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n",
-        "<?xml version=\"1.0\" encoding=\"[{charset}]\"?>\n",
-        "<!DOCTYPE html>\n",
-        "<?xml version=\"1.0\" encoding=\"[{charset}]\"?>\n",
-        "<?xml version=\"1.0\" encoding=\"[{charset}]\"?>\n"
+        'XML'  => "<?xml version=\"1.0\" encoding=\"[{charset}]\"?>\n",
+        'HTML' =>"<!DOCTYPE html>\n"
     ];
 
     /**
@@ -134,11 +83,10 @@ class Document extends AbstractNode
      * Instantiate the document object
      *
      * @param  string $doctype
-     * @param  mixed  $childNode
+     * @param  Child  $childNode
      * @param  string $indent
-     * @return Document
      */
-    public function __construct($doctype = null, $childNode = null, $indent = null)
+    public function __construct($doctype = 'XML', Child $childNode = null, $indent = null)
     {
         $this->setDoctype($doctype);
 
@@ -161,7 +109,7 @@ class Document extends AbstractNode
     }
 
     /**
-     * Return the document charset.
+     * Return the document charset
      *
      * @return string
      */
@@ -171,7 +119,7 @@ class Document extends AbstractNode
     }
 
     /**
-     * Return the document charset.
+     * Return the document charset
      *
      * @return string
      */
@@ -181,41 +129,44 @@ class Document extends AbstractNode
     }
 
     /**
-     * Set the document type.
+     * Set the document type
      *
      * @param  string $doctype
+     * @throws Exception
      * @return Document
      */
-    public function setDoctype($doctype = null)
+    public function setDoctype($doctype)
     {
-        if (null !== $doctype) {
-            $doctype = (int)$doctype;
+        $doctype = strtoupper($doctype);
 
-            if (array_key_exists($doctype, Document::$doctypes)) {
-                $this->doctype = $doctype;
-                switch ($this->doctype) {
-                    case Document::ATOM:
-                        $this->contentType = 'application/atom+xml';
-                        break;
-                    case Document::RSS:
-                        $this->contentType = 'application/rss+xml';
-                        break;
-                    case Document::XML:
-                        $this->contentType = 'application/xml';
-                        break;
-                    default:
-                        $this->contentType = 'text/html';
-                }
-            }
-        } else {
-            $this->doctype = null;
+        if (($doctype != self::XML) && ($doctype != self::HTML) && ($doctype != self::RSS) && ($doctype != self::ATOM)) {
+            throw new Exception('Error: Incorrect document type');
+        }
+
+        switch ($doctype) {
+            case 'XML':
+                $this->doctype     = self::XML;
+                $this->contentType = 'application/xml';
+                break;
+            case 'HTML':
+                $this->doctype     = self::HTML;
+                $this->contentType = 'text/html';
+                break;
+            case 'RSS':
+                $this->doctype     = self::XML;
+                $this->contentType = 'application/rss+xml';
+                break;
+            case 'ATOM':
+                $this->doctype     = self::XML;
+                $this->contentType = 'application/atom+xml';
+                break;
         }
 
         return $this;
     }
 
     /**
-     * Set the document charset.
+     * Set the document charset
      *
      * @param  string $char
      * @return Document
@@ -227,7 +178,7 @@ class Document extends AbstractNode
     }
 
     /**
-     * Set the document charset.
+     * Set the document charset
      *
      * @param  string $content
      * @return Document
@@ -239,7 +190,7 @@ class Document extends AbstractNode
     }
 
     /**
-     * Render the document and its child elements.
+     * Render the document and its child elements
      *
      * @param  boolean $ret
      * @return mixed

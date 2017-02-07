@@ -9,7 +9,11 @@ class ChildTest extends \PHPUnit_Framework_TestCase
 
     public function testConstructor()
     {
-        $child = new Child('h1', 'Hello World', new Child('h2', 'Test'));
+        $child = new Child('h1', 'Hello World', [
+            'indent'        => '    ',
+            'attributes'    => ['style' => 'width: 100px;'],
+            'childrenFirst' => true
+        ]);
         $this->assertInstanceOf('Pop\Dom\Child', $child);
         $child->setNodeName('title');
         $child->setNodeValue('Hello World!');
@@ -17,28 +21,35 @@ class ChildTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Hello World!', $child->getNodeValue());
     }
 
-    public function testFactory()
+    public function testChildrenFirst()
     {
-        $child = Child::factory([
-            'nodeName'   => 'h1',
-            'nodeValue'  => 'Hello World',
+        $child = new Child('h1', 'Hello World', [
+            'indent'        => '    ',
+            'attributes'    => ['style' => 'width: 100px;'],
+            'childrenFirst' => true
+        ]);
+        $this->assertTrue($child->isChildrenFirst());
+        $child->setChildrenFirst(false);
+        $this->assertFalse($child->isChildrenFirst());
+    }
+
+    public function testCreate()
+    {
+        $child = Child::create('h1', 'Hello World', [
             'attributes' => [
                 'style' => 'color: #f00;'
-            ],
-            'childNodes' => [[
-                'nodeName'  => 'h2',
-                'nodeValue' => 'Test',
-            ]]
+            ]
         ]);
         $this->assertInstanceOf('Pop\Dom\Child', $child);
     }
 
-    public function testFactoryException()
+    public function testRemove()
     {
-        $this->setExpectedException('Pop\Dom\Exception');
-        $child = Child::factory([
-            'nodeValue'  => 'Hello World'
-        ]);
+        $child = new Child('h1', 'Hello World');
+        $child->addChild(new Child('p', 'Paragraph'));
+        $this->assertEquals(1, count($child->getChildren()));
+        $child->removeChildren();
+        $this->assertEquals(0, count($child->getChildren()));
     }
 
     public function testAttributes()
@@ -63,7 +74,29 @@ class ChildTest extends \PHPUnit_Framework_TestCase
             'id'    => 'header',
             'style' => 'display: block;'
         ]);
-        $this->assertContains('<h1 id="header" style="display: block;">Header</h1>', (string)$child);
+        $child->addChild(new Child('p', 'Paragraph'));
+        $this->assertContains('<h1 id="header" style="display: block;">', (string)$child);
+        $this->assertContains('<p>Paragraph</p>', (string)$child);
+    }
+
+    public function testRenderChildrenFirst()
+    {
+        $child = new Child('h1', 'Header');
+        $child->setChildrenFirst(true);
+        $child->setIndent('    ');
+        $child->setAttributes([
+            'id'    => 'header',
+            'style' => 'display: block;'
+        ]);
+        $child->addChild(new Child('p', 'Paragraph'));
+        $this->assertContains('<h1 id="header" style="display: block;">', (string)$child);
+        $this->assertContains('<p>Paragraph</p>', (string)$child);
+    }
+
+    public function testRenderNoNodeValue()
+    {
+        $child = new Child('h1');
+        $this->assertEquals("<h1 />\n", (string)$child);
     }
 
     /**
@@ -71,67 +104,11 @@ class ChildTest extends \PHPUnit_Framework_TestCase
      */
     public function testOutput()
     {
-        $child = Child::factory([
-            'nodeName'   => 'h1',
-            'nodeValue'  => 'Hello World',
-            'attributes' => [
-                'style' => 'color: #f00;'
-            ],
-            'childNodes' => [[
-                'nodeName'  => 'h2',
-                'nodeValue' => 'Test',
-            ]]
-        ]);
-
+        $child = new Child('h1', 'Header');
         ob_start();
         $child->render();
         $result = ob_get_clean();
-
-        $this->assertContains('<h1 style="color: #f00;">', $result);
-    }
-
-    /**
-     * @runInSeparateProcess
-     */
-    public function testOutputChildrenFirst()
-    {
-        $child = Child::factory([
-            'nodeName'   => 'h1',
-            'nodeValue'  => 'Hello World',
-            'attributes' => [
-                'style' => 'color: #f00;'
-            ],
-            'childrenFirst' => true,
-            'childNodes' => [[
-                'nodeName'  => 'h2',
-                'nodeValue' => 'Test',
-            ]]
-        ]);
-
-        ob_start();
-        $child->render();
-        $result = ob_get_clean();
-
-        $this->assertContains('<h1 style="color: #f00;">', $result);
-    }
-
-    /**
-     * @runInSeparateProcess
-     */
-    public function testOutputNoNodeValue()
-    {
-        $child = Child::factory([
-            'nodeName'   => 'img',
-            'attributes' => [
-                'src' => 'img/image.jpg'
-            ]
-        ]);
-
-        ob_start();
-        $child->render();
-        $result = ob_get_clean();
-
-        $this->assertContains('<img src="img/image.jpg" />', $result);
+        $this->assertContains('<h1>Header</h1>', $result);
     }
 
 }

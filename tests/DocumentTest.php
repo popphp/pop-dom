@@ -10,7 +10,7 @@ class DomTest extends \PHPUnit_Framework_TestCase
 
     public function testConstructor()
     {
-        $doc = new Document(Document::HTML5, new Child('title', 'Hello World'), '    ');
+        $doc = new Document(Document::HTML, new Child('title', 'Hello World'), '    ');
         $this->assertInstanceOf('Pop\Dom\Document', $doc);
         $this->assertEquals('    ', $doc->getIndent());
         $this->assertEquals(1, count($doc->getChildren()));
@@ -26,6 +26,13 @@ class DomTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('<?xml version=', $doc->getDoctype());
         $doc->setDoctype(Document::XML);
         $this->assertContains('<?xml version=', $doc->getDoctype());
+    }
+
+    public function testSetDoctypeException()
+    {
+        $this->expectException('Pop\Dom\Exception');
+        $doc = new Document();
+        $doc->setDoctype('BAD');
     }
 
     public function testSetCharset()
@@ -54,27 +61,6 @@ class DomTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, count($doc->getChildren()));
     }
 
-    public function testAddChildFromConfigArray()
-    {
-        $doc = new Document();
-        $doc->addChild([
-            'nodeName'      => 'title',
-            'nodeValue'     => 'Hello World',
-            'childrenFirst' => true,
-            'indent'        => '    '
-        ]);
-        $this->assertEquals(1, count($doc->getChildren()));
-        $doc->removeChildren();
-        $this->assertEquals(0, count($doc->getChildren()));
-    }
-
-    public function testAddChildException()
-    {
-        $this->setExpectedException('InvalidArgumentException');
-        $doc = new Document();
-        $doc->addChild('bad');
-    }
-
     public function testAddChildren()
     {
         $doc = new Document();
@@ -100,7 +86,7 @@ class DomTest extends \PHPUnit_Framework_TestCase
      */
     public function testOutput()
     {
-        $doc = new Document(Document::HTML5, new Child('title', 'Hello World'));
+        $doc = new Document(Document::HTML, new Child('title', 'Hello World'));
         $doc->addChild(new Child('h1', 'Header'));
 
         ob_start();
