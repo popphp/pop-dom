@@ -90,7 +90,7 @@ class DomTest extends \PHPUnit_Framework_TestCase
         $doc->addChild(new Child('h1', 'Header'));
 
         ob_start();
-        $doc->render();
+        echo $doc;
         $result = ob_get_clean();
 
         $this->assertContains('<h1>Header</h1>', $result);

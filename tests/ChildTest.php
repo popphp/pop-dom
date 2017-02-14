@@ -106,7 +106,7 @@ class ChildTest extends \PHPUnit_Framework_TestCase
     {
         $child = new Child('h1', 'Header');
         ob_start();
-        $child->render();
+        echo $child;
         $result = ob_get_clean();
         $this->assertContains('<h1>Header</h1>', $result);
     }

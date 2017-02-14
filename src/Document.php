@@ -192,10 +192,9 @@ class Document extends AbstractNode
     /**
      * Render the document and its child elements
      *
-     * @param  boolean $ret
-     * @return mixed
+     * @return string
      */
-    public function render($ret = false)
+    public function render()
     {
         $this->output = null;
 
@@ -204,22 +203,10 @@ class Document extends AbstractNode
         }
 
         foreach ($this->childNodes as $child) {
-            $this->output .= $child->render(true, 0, $this->indent);
+            $this->output .= $child->render(0, $this->indent);
         }
 
-        // If the return flag is passed, return output.
-        if ($ret) {
-            return $this->output;
-        // Else, print output.
-        } else {
-            if (null !== $this->doctype) {
-                if (!headers_sent()) {
-                    header("HTTP/1.1 200 OK");
-                    header("Content-type: " . $this->contentType);
-                }
-            }
-            echo $this->output;
-        }
+        return $this->output;
     }
 
     /**
@@ -229,7 +216,7 @@ class Document extends AbstractNode
      */
     public function __toString()
     {
-        return $this->render(true);
+        return $this->render();
     }
 
 }

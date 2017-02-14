@@ -219,12 +219,11 @@ class Child extends AbstractNode
     /**
      * Render the child and its child nodes.
      *
-     * @param  boolean $ret
      * @param  int     $depth
      * @param  string  $indent
      * @return mixed
      */
-    public function render($ret = false, $depth = 0, $indent = null)
+    public function render($depth = 0, $indent = null)
     {
         // Initialize child object properties and variables.
         $this->output = '';
@@ -259,13 +258,13 @@ class Child extends AbstractNode
             if (!$this->childrenFirst) {
                 $this->output .= (null !== $this->nodeValue) ? (str_repeat('    ', $newDepth) . "{$indent}{$this->nodeValue}\n") : '';
                 foreach ($this->childNodes as $child) {
-                    $this->output .= $child->render(true, $newDepth, $indent);
+                    $this->output .= $child->render($newDepth, $indent);
                 }
                 $this->output .= "{$origIndent}</{$this->nodeName}>\n";
             // Else, render child nodes first, then node value.
             } else {
                 foreach ($this->childNodes as $child) {
-                    $this->output .= $child->render(true, $newDepth, $indent);
+                    $this->output .= $child->render($newDepth, $indent);
                 }
                 $this->output .= (null !== $this->nodeValue) ? (str_repeat('    ', $newDepth) . "{$indent}{$this->nodeValue}\n{$origIndent}</{$this->nodeName}>\n") : "{$origIndent}</{$this->nodeName}>\n";
             }
@@ -280,12 +279,7 @@ class Child extends AbstractNode
             }
         }
 
-        // Return or print the rendered child node output.
-        if ($ret) {
-            return $this->output;
-        } else {
-            echo $this->output;
-        }
+        return $this->output;
     }
 
     /**
@@ -295,7 +289,7 @@ class Child extends AbstractNode
      */
     public function __toString()
     {
-        return $this->render(true);
+        return $this->render();
     }
 
 }
