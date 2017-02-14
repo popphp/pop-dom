@@ -53,7 +53,7 @@ class Child extends AbstractNode
     /**
      * Constructor
      *
-     * Instantiate the form element object
+     * Instantiate the DOM element object
      *
      * @param  string  $name
      * @param  string  $value
