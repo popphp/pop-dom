@@ -1,6 +1,9 @@
 pop-dom
 =======
 
+[![Build Status](https://travis-ci.org/popphp/pop-dom.svg?branch=master)](https://travis-ci.org/popphp/pop-dom)
+[![Coverage Status](http://cc.popphp.org/coverage.php?comp=pop-dom)](http://cc.popphp.org/pop-dom/)
+
 OVERVIEW
 --------
 `pop-dom` is a component for generating and rendering DOM documents and elements. With it, you
