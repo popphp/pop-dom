@@ -79,7 +79,7 @@ $html->addChildren([$head, $body]);
 
 // Create and render the DOM document with HTTP headers
 $doc = new Document(Document::HTML, $html);
-$doc->render();
+echo $doc;
 ```
 
 ```html
