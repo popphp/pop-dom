@@ -60,6 +60,7 @@ class ChildTest extends \PHPUnit_Framework_TestCase
             'id'    => 'header',
             'style' => 'display: block;'
         ]);
+        $this->assertTrue($child->hasAttribute('id'));
         $this->assertEquals('header', $child->getAttribute('id'));
         $this->assertEquals(3, count($child->getAttributes()));
         $child->removeAttribute('id');

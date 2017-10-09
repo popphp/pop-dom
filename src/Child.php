@@ -160,6 +160,17 @@ class Child extends AbstractNode
     }
 
     /**
+     * Determine if the child object has an attribute
+     *
+     * @param  string $name
+     * @return boolean
+     */
+    public function hasAttribute($name)
+    {
+        return (isset($this->attributes[$name]));
+    }
+
+    /**
      * Get the attribute of the child object
      *
      * @param  string $name
