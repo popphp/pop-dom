@@ -17,11 +17,11 @@ namespace Pop\Dom;
  * Dom child class
  *
  * @category   Pop
- * @package    Pop_Dom
+ * @package    Pop\Dom
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2017 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.0.0
+ * @version    3.2.0
  */
 class Child extends AbstractNode
 {
@@ -51,6 +51,12 @@ class Child extends AbstractNode
     protected $attributes = [];
 
     /**
+     * Flag to preserve whitespace
+     * @var boolean
+     */
+    protected $preserveWhiteSpace = true;
+
+    /**
      * Constructor
      *
      * Instantiate the DOM element object
@@ -73,6 +79,9 @@ class Child extends AbstractNode
         if (isset($options['attributes'])) {
             $this->setAttributes($options['attributes']);
         }
+        if (isset($options['whitespace'])) {
+            $this->preserveWhiteSpace($options['whitespace']);
+        }
     }
 
     /**
@@ -86,6 +95,121 @@ class Child extends AbstractNode
     public static function create($name, $value = null, array $options = [])
     {
         return new self($name, $value, $options);
+    }
+
+    /**
+     * Static method to parse an XML/HTML string
+     *
+     * @param  string $string
+     * @return Child|array
+     */
+    public static function parseString($string)
+    {
+        $doc = new \DOMDocument();
+        $doc->loadHTML($string);
+
+        $dit = new \RecursiveIteratorIterator(
+            new DomIterator($doc),
+            \RecursiveIteratorIterator::SELF_FIRST
+        );
+
+        $parent     = null;
+        $child      = null;
+        $lastDepth  = 0;
+        $endElement = null;
+        $partial    = ((stripos($string, '<html') === false) || (stripos($string, '<body') === false));
+
+        foreach($dit as $node) {
+            if (($node->nodeType == XML_ELEMENT_NODE) || ($node->nodeType == XML_TEXT_NODE)) {
+                $attribs = [];
+                if (null !== $node->attributes) {
+                    for ($i = 0; $i < $node->attributes->length; $i++) {
+                        $name = $node->attributes->item($i)->name;
+                        $attribs[$name] = $node->getAttribute($name);
+                    }
+                }
+                if (null === $parent) {
+                    $parent = new Child($node->nodeName);
+                } else {
+                    if (($node->nodeType == XML_TEXT_NODE) && (null !== $child)) {
+                        $nodeValue = trim($node->nodeValue);
+                        if (!empty($nodeValue)) {
+                            if (($endElement) && (null !== $child->getParent()) && (null !== $node->previousSibling)) {
+                                $prev = $node->previousSibling->nodeName;
+                                $par  = $child->getParent();
+                                while ((null !== $par) && ($prev != $par->getNodeName())) {
+                                    $par = $par->getParent();
+                                }
+                                if (null === $par) {
+                                    $par = $child->getParent();
+                                } else {
+                                    $par = $par->getParent();
+                                }
+                                $par->addChild(new Child('#text', $nodeValue));
+                            } else {
+                                $child->setNodeValue($nodeValue);
+                                $endElement = true;
+                            }
+                        }
+                    } else {
+                        // down
+                        if ($dit->getDepth() > $lastDepth) {
+                            if (null !== $child) {
+                                $parent = $child;
+                            }
+                            $child  = new Child($node->nodeName);
+                            $parent->addChild($child);
+                            $endElement = false;
+                            // up
+                        } else if ($dit->getDepth() < $lastDepth) {
+                            while ($parent->getNodeName() != $node->parentNode->nodeName) {
+                                $parent = $parent->getParent();
+                            }
+                            //$parent = $parent->getParent();
+                            $child  = new Child($node->nodeName);
+                            $parent->addChild($child);
+                            $endElement = false;
+                            // next (sibling)
+                        } else if ($dit->getDepth() == $lastDepth) {
+                            $child  = new Child($node->nodeName);
+                            $parent->addChild($child);
+                            $endElement = false;
+                        }
+                        if (!empty($attribs)) {
+                            $child->setAttributes($attribs);
+                        }
+                        $lastDepth = $dit->getDepth();
+                    }
+                }
+            }
+        }
+        while (null !== $parent->getParent()) {
+            $parent = $parent->getParent();
+        }
+
+        if ($partial) {
+            $parent = $parent->getChild(0);
+            if (strtolower($parent->getNodeName()) == 'body') {
+                $parent = $parent->getChildNodes();
+            }
+        }
+
+        return $parent;
+    }
+
+    /**
+     * Static method to parse an XML/HTML string from a file
+     *
+     * @param  string $file
+     * @throws Exception
+     * @return Child
+     */
+    public static function parseFile($file)
+    {
+        if (!file_exists($file)) {
+            throw new Exception('Error: That file does not exist.');
+        }
+        return self::parseString(file_get_contents($file));
     }
 
     /**
@@ -219,11 +343,23 @@ class Child extends AbstractNode
      * Set whether child nodes render first, before the node value
      *
      * @param  bool $first
-     * @return string
+     * @return Child
      */
-    public function setChildrenFirst($first)
+    public function setChildrenFirst($first = true)
     {
         $this->childrenFirst = (bool)$first;
+        return $this;
+    }
+
+    /**
+     * Set whether to preserve whitespace
+     *
+     * @param  bool $preserve
+     * @return Child
+     */
+    public function preserveWhiteSpace($preserve = true)
+    {
+        $this->preserveWhiteSpace = (bool)$preserve;
         return $this;
     }
 
@@ -251,42 +387,61 @@ class Child extends AbstractNode
         }
 
         // Initialize the node.
-        $this->output .= "{$indent}{$this->indent}<{$this->nodeName}{$attribs}";
-
-        if ((null === $indent) && (null !== $this->indent)) {
-            $indent     = $this->indent;
-            $origIndent = $this->indent;
+        if ($this->nodeName == '#text') {
+            $this->output .= ((!$this->preserveWhiteSpace) ? '' : "{$indent}{$this->indent}") . $this->nodeValue . ((!$this->preserveWhiteSpace) ? '' : "\n");
         } else {
-            $origIndent = $indent . $this->indent;
-        }
+            $this->output .= ((!$this->preserveWhiteSpace) ? '' : "{$indent}{$this->indent}") . "<{$this->nodeName}{$attribs}";
 
-        // If current child element has child nodes, format and render.
-        if (count($this->childNodes) > 0) {
-            $this->output .= ">\n";
-            $newDepth = $depth + 1;
-
-            // Render node value before the child nodes.
-            if (!$this->childrenFirst) {
-                $this->output .= (null !== $this->nodeValue) ? (str_repeat('    ', $newDepth) . "{$indent}{$this->nodeValue}\n") : '';
-                foreach ($this->childNodes as $child) {
-                    $this->output .= $child->render($newDepth, $indent);
-                }
-                $this->output .= "{$origIndent}</{$this->nodeName}>\n";
-            // Else, render child nodes first, then node value.
+            if ((null === $indent) && (null !== $this->indent)) {
+                $indent     = $this->indent;
+                $origIndent = $this->indent;
             } else {
-                foreach ($this->childNodes as $child) {
-                    $this->output .= $child->render($newDepth, $indent);
-                }
-                $this->output .= (null !== $this->nodeValue) ? (str_repeat('    ', $newDepth) . "{$indent}{$this->nodeValue}\n{$origIndent}</{$this->nodeName}>\n") : "{$origIndent}</{$this->nodeName}>\n";
+                $origIndent = $indent . $this->indent;
             }
 
-        // Else, render the child node.
-        } else {
-            if ((null !== $this->nodeValue) || ($this->nodeName == 'textarea')) {
+            // If current child element has child nodes, format and render.
+            if (count($this->childNodes) > 0) {
                 $this->output .= ">";
-                $this->output .= "{$this->nodeValue}</{$this->nodeName}>\n";
+                if ($this->preserveWhiteSpace) {
+                    $this->output .= "\n";
+                }
+                $newDepth = $depth + 1;
+
+                // Render node value before the child nodes.
+                if (!$this->childrenFirst) {
+                    if (null !== $this->nodeValue) {
+                        $this->output .= ((!$this->preserveWhiteSpace) ? '' : str_repeat('    ', $newDepth) . "{$indent}") . "{$this->nodeValue}\n";
+                    }
+                    foreach ($this->childNodes as $child) {
+                        $this->output .= $child->render($newDepth, $indent);
+                    }
+                    if (!$this->preserveWhiteSpace) {
+                        $this->output .= "</{$this->nodeName}>";
+                    } else {
+                        $this->output .= "{$origIndent}</{$this->nodeName}>\n";
+                    }
+                // Else, render child nodes first, then node value.
+                } else {
+                    foreach ($this->childNodes as $child) {
+                        $this->output .= $child->render($newDepth, $indent);
+                    }
+                    if (null !== $this->nodeValue) {
+                        $this->output .= ((!$this->preserveWhiteSpace) ? '' : str_repeat('    ', $newDepth) . "{$indent}") . "{$this->nodeValue}" . ((!$this->preserveWhiteSpace) ? '' : "\n{$origIndent}") . "</{$this->nodeName}>" . (($this->preserveWhiteSpace) ? '' : "\n");
+                    } else {
+                        $this->output .= ((!$this->preserveWhiteSpace) ? '' : "{$origIndent}") . "</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
+                    }
+                }
+            // Else, render the child node.
             } else {
-                $this->output .= " />\n";
+                if ((null !== $this->nodeValue) || ($this->nodeName == 'textarea')) {
+                    $this->output .= ">";
+                    $this->output .= "{$this->nodeValue}</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
+                } else {
+                    $this->output .= " />";
+                    if ($this->preserveWhiteSpace) {
+                        $this->output .= "\n";
+                    }
+                }
             }
         }
 

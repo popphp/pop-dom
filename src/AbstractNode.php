@@ -17,11 +17,11 @@ namespace Pop\Dom;
  * Abstract node class
  *
  * @category   Pop
- * @package    Pop_Dom
+ * @package    Pop\Dom
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2017 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.0.0
+ * @version    3.2.0
  */
 abstract class AbstractNode
 {
@@ -43,6 +43,12 @@ abstract class AbstractNode
      * @var string
      */
     protected $output = null;
+
+    /**
+     * Parent node
+     * @var AbstractNode
+     */
+    protected $parent = null;
 
     /**
      * Return the indent
@@ -67,6 +73,28 @@ abstract class AbstractNode
     }
 
     /**
+     * Return the parent node
+     *
+     * @return AbstractNode
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
+     * Set the parent node
+     *
+     * @param  AbstractNode $parent
+     * @return AbstractNode
+     */
+    public function setParent(AbstractNode $parent)
+    {
+        $this->parent = $parent;
+        return $this;
+    }
+
+    /**
      * Add a child to the object
      *
      * @param  mixed $c
@@ -75,6 +103,7 @@ abstract class AbstractNode
      */
     public function addChild(Child $c)
     {
+        $c->setParent($this);
         $this->childNodes[] = $c;
         return $this;
     }
@@ -82,14 +111,20 @@ abstract class AbstractNode
     /**
      * Add children to the object
      *
-     * @param  array $c
+     * @param  $children
      * @throws Exception
      * @return mixed
      */
-    public function addChildren(array $c)
+    public function addChildren($children)
     {
-        foreach ($c as $child) {
-            $this->addChild($child);
+        if (is_array($children)) {
+            foreach ($children as $child) {
+                $this->addChild($child);
+            }
+        } else if ($children instanceof Child) {
+            $this->addChild($children);
+        } else {
+            throw new Exception('Error: The parameter passed must be an instance of Pop\Dom\Child or an array of Pop\Dom\Child instances.');
         }
 
         return $this;
@@ -101,6 +136,16 @@ abstract class AbstractNode
      * @return boolean
      */
     public function hasChildren()
+    {
+        return (count($this->childNodes) > 0);
+    }
+
+    /**
+     * Get whether or not the child object has children (alias)
+     *
+     * @return boolean
+     */
+    public function hasChildNodes()
     {
         return (count($this->childNodes) > 0);
     }
@@ -122,6 +167,16 @@ abstract class AbstractNode
      * @return array
      */
     public function getChildren()
+    {
+        return $this->childNodes;
+    }
+
+    /**
+     * Get the child nodes of the object (alias)
+     *
+     * @return array
+     */
+    public function getChildNodes()
     {
         return $this->childNodes;
     }
