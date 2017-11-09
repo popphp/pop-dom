@@ -6,8 +6,8 @@ pop-dom
 
 OVERVIEW
 --------
-`pop-dom` is a component for generating and rendering DOM documents and elements. With it, you
-can easily create document nodes and their children and have control over node content and
+`pop-dom` is a component for generating, rendering and parsing DOM documents and elements. With it,
+you can easily create or parse document nodes and their children and have control over node content and
 attributes.
 
 `pop-dom`is a component of the [Pop PHP Framework](http://www.popphp.org/).
@@ -96,4 +96,34 @@ echo $doc;
         </div>
     </body>
 </html>
+```
+
+### Parsing a DOM Document
+
+You can parse from a string of XML or HTML and it will return an object graph of Child elements
+that you can further manipulate or edit to then output: 
+
+```php
+$html = <<<HTML
+<html>
+    <head>
+        <title>Hello World Title</title>
+    </head>
+    <body>
+        <h1 class="top-header" id="header">Hello World Header</h1>
+        <p>How are <em>YOU</em> doing <strong><em>today</em></strong>???</p>
+        <p class="special-p">Some <strong class="bold">more</strong> text.</p>
+    </body>
+</html>
+HTML;
+
+$doc = new Document(Document::HTML);
+$doc->addChild(Child::parseString($html));
+echo $doc;
+```
+
+And you can parse from a file as well:
+
+```php
+$children = Child::parseFile('index.html');
 ```
