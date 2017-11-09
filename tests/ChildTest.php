@@ -12,7 +12,8 @@ class ChildTest extends \PHPUnit_Framework_TestCase
         $child = new Child('h1', 'Hello World', [
             'indent'        => '    ',
             'attributes'    => ['style' => 'width: 100px;'],
-            'childrenFirst' => true
+            'childrenFirst' => true,
+            'whitespace'    => true
         ]);
         $this->assertInstanceOf('Pop\Dom\Child', $child);
         $child->setNodeName('title');
@@ -43,11 +44,36 @@ class ChildTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Pop\Dom\Child', $child);
     }
 
+    public function testHasChildNodes()
+    {
+        $child = new Child('h1', 'Hello World');
+        $child->addChild(new Child('p', 'Paragraph'));
+        $child->addChildren([new Child('h1', 'Hello World'), new Child('h3', 'Hey!')]);
+        $this->assertTrue($child->hasChildNodes());
+    }
+
+    public function testGetChildNodes()
+    {
+        $child = new Child('h1', 'Hello World');
+        $child->addChild(new Child('p', 'Paragraph'));
+        $child->addChildren([new Child('h1', 'Hello World'), new Child('h3', 'Hey!')]);
+        $this->assertEquals(3, count($child->getChildNodes()));
+    }
+
+    public function testAddChildrenException()
+    {
+        $this->expectException('Pop\Dom\Exception');
+        $child = new Child('h1', 'Hello');
+        $child->addChildren('h4');
+    }
+
     public function testRemove()
     {
         $child = new Child('h1', 'Hello World');
         $child->addChild(new Child('p', 'Paragraph'));
-        $this->assertEquals(1, count($child->getChildren()));
+        $child->addChildren([new Child('h1', 'Hello World'), new Child('h3', 'Hey!')]);
+        $child->addChildren(new Child('h4', 'Bye!'));
+        $this->assertEquals(4, count($child->getChildren()));
         $child->removeChildren();
         $this->assertEquals(0, count($child->getChildren()));
     }
