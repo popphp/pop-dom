@@ -233,6 +233,26 @@ class Child extends AbstractNode
     }
 
     /**
+     * Return the child node content, including tags, etc
+     *
+     * @return string
+     */
+    public function getNodeContent()
+    {
+        return $this->render(0, null, true);
+    }
+
+    /**
+     * Return the child node content, including tags, etc
+     *
+     * @return string
+     */
+    public function getTextContent()
+    {
+        return strip_tags($this->render(0, null, true));
+    }
+
+    /**
      * Set the child node name
      *
      * @param  string $name
@@ -368,9 +388,10 @@ class Child extends AbstractNode
      *
      * @param  int     $depth
      * @param  string  $indent
+     * @param  boolean $inner
      * @return mixed
      */
-    public function render($depth = 0, $indent = null)
+    public function render($depth = 0, $indent = null, $inner = false)
     {
         // Initialize child object properties and variables.
         $this->output = '';
@@ -390,7 +411,9 @@ class Child extends AbstractNode
         if ($this->nodeName == '#text') {
             $this->output .= ((!$this->preserveWhiteSpace) ? '' : "{$indent}{$this->indent}") . $this->nodeValue . ((!$this->preserveWhiteSpace) ? '' : "\n");
         } else {
-            $this->output .= ((!$this->preserveWhiteSpace) ? '' : "{$indent}{$this->indent}") . "<{$this->nodeName}{$attribs}";
+            if (!$inner) {
+                $this->output .= ((!$this->preserveWhiteSpace) ? '' : "{$indent}{$this->indent}") . "<{$this->nodeName}{$attribs}";
+            }
 
             if ((null === $indent) && (null !== $this->indent)) {
                 $indent     = $this->indent;
@@ -401,9 +424,11 @@ class Child extends AbstractNode
 
             // If current child element has child nodes, format and render.
             if (count($this->childNodes) > 0) {
-                $this->output .= ">";
-                if ($this->preserveWhiteSpace) {
-                    $this->output .= "\n";
+                if (!$inner) {
+                    $this->output .= ">";
+                    if ($this->preserveWhiteSpace) {
+                        $this->output .= "\n";
+                    }
                 }
                 $newDepth = $depth + 1;
 
@@ -415,31 +440,37 @@ class Child extends AbstractNode
                     foreach ($this->childNodes as $child) {
                         $this->output .= $child->render($newDepth, $indent);
                     }
-                    if (!$this->preserveWhiteSpace) {
-                        $this->output .= "</{$this->nodeName}>";
-                    } else {
-                        $this->output .= "{$origIndent}</{$this->nodeName}>\n";
+                    if (!$inner) {
+                        if (!$this->preserveWhiteSpace) {
+                            $this->output .= "</{$this->nodeName}>";
+                        } else {
+                            $this->output .= "{$origIndent}</{$this->nodeName}>\n";
+                        }
                     }
                 // Else, render child nodes first, then node value.
                 } else {
                     foreach ($this->childNodes as $child) {
                         $this->output .= $child->render($newDepth, $indent);
                     }
-                    if (null !== $this->nodeValue) {
-                        $this->output .= ((!$this->preserveWhiteSpace) ? '' : str_repeat('    ', $newDepth) . "{$indent}") . "{$this->nodeValue}" . ((!$this->preserveWhiteSpace) ? '' : "\n{$origIndent}") . "</{$this->nodeName}>" . (($this->preserveWhiteSpace) ? '' : "\n");
-                    } else {
-                        $this->output .= ((!$this->preserveWhiteSpace) ? '' : "{$origIndent}") . "</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
+                    if (!$inner) {
+                        if (null !== $this->nodeValue) {
+                            $this->output .= ((!$this->preserveWhiteSpace) ? '' : str_repeat('    ', $newDepth) . "{$indent}") . "{$this->nodeValue}" . ((!$this->preserveWhiteSpace) ? '' : "\n{$origIndent}") . "</{$this->nodeName}>" . (($this->preserveWhiteSpace) ? '' : "\n");
+                        } else {
+                            $this->output .= ((!$this->preserveWhiteSpace) ? '' : "{$origIndent}") . "</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
+                        }
                     }
                 }
             // Else, render the child node.
             } else {
-                if ((null !== $this->nodeValue) || ($this->nodeName == 'textarea')) {
-                    $this->output .= ">";
-                    $this->output .= "{$this->nodeValue}</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
-                } else {
-                    $this->output .= " />";
-                    if ($this->preserveWhiteSpace) {
-                        $this->output .= "\n";
+                if (!$inner) {
+                    if ((null !== $this->nodeValue) || ($this->nodeName == 'textarea')) {
+                        $this->output .= ">";
+                        $this->output .= "{$this->nodeValue}</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
+                    } else {
+                        $this->output .= " />";
+                        if ($this->preserveWhiteSpace) {
+                            $this->output .= "\n";
+                        }
                     }
                 }
             }
