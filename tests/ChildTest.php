@@ -126,6 +126,86 @@ class ChildTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("<h1 />\n", (string)$child);
     }
 
+    public function testGetNodeContent()
+    {
+        $parent = new Child('html');
+
+        $child = new Child('head');
+        $parent->addChild($child);
+
+        $parent = $child;
+        $child = new Child('title', 'Hello World');
+        $parent->addChild($child);
+
+        $parent = $parent->getParent();
+        $child = new Child('body');
+        $parent->addChild($child);
+
+        $parent = $child;
+        $child = new Child('h1', 'hello world');
+        $parent->addChild($child);
+
+        // next (sibling)
+        $child = new Child('p', 'some text');
+        $parent->addChild($child);
+
+        // next (sibling)
+        $child = new Child('p');
+        $child->addChild(new Child('#text', 'some ', ['whitespace' => true]));
+        $child->addChild(new Child('strong', 'more', ['whitespace' => true]));
+        $child->addChild(new Child('#text', ' text ', ['whitespace' => true]));
+        $parent->addChild($child);
+
+        while (null !== $parent->getParent()) {
+            $parent = $parent->getParent();
+        }
+
+        $body = $parent->getChild(1);
+        $content = $body->getNodeContent();
+        $this->assertContains('<strong>more</strong>', $content);
+        $this->assertNotContains('<body', $content);
+    }
+
+    public function testGetTextContent()
+    {
+        $parent = new Child('html');
+
+        $child = new Child('head');
+        $parent->addChild($child);
+
+        $parent = $child;
+        $child = new Child('title', 'Hello World');
+        $parent->addChild($child);
+
+        $parent = $parent->getParent();
+        $child = new Child('body');
+        $parent->addChild($child);
+
+        $parent = $child;
+        $child = new Child('h1', 'hello world');
+        $parent->addChild($child);
+
+        // next (sibling)
+        $child = new Child('p', 'some text');
+        $parent->addChild($child);
+
+        // next (sibling)
+        $child = new Child('p');
+        $child->addChild(new Child('#text', 'some ', ['whitespace' => true]));
+        $child->addChild(new Child('strong', 'more', ['whitespace' => true]));
+        $child->addChild(new Child('#text', ' text ', ['whitespace' => true]));
+        $parent->addChild($child);
+
+        while (null !== $parent->getParent()) {
+            $parent = $parent->getParent();
+        }
+
+        $body = $parent->getChild(1);
+        $content = $body->getTextContent();
+        $this->assertContains('more', $content);
+        $this->assertNotContains('<h1>', $content);
+    }
+
     /**
      * @runInSeparateProcess
      */
