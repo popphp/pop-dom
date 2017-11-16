@@ -472,6 +472,8 @@ class Child extends AbstractNode
                             $this->output .= "\n";
                         }
                     }
+                } else if (!empty($this->nodeValue)) {
+                    $this->output .= $this->nodeValue;
                 }
             }
         }
