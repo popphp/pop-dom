@@ -235,11 +235,22 @@ class Child extends AbstractNode
     /**
      * Return the child node content, including tags, etc
      *
+     * @param  boolean $ignoreWhiteSpace
      * @return string
      */
-    public function getNodeContent()
+    public function getNodeContent($ignoreWhiteSpace = false)
     {
-        return $this->render(0, null, true);
+        $content = $this->render(0, null, true);
+        if ($ignoreWhiteSpace) {
+            $content = preg_replace('/\s+/', ' ', str_replace(["\n", "\r", "\t"], ["", "", ""], trim($content)));
+            $content = preg_replace('/\s*\.\s*/', '. ', $content);
+            $content = preg_replace('/\s*\?\s*/', '? ', $content);
+            $content = preg_replace('/\s*\!\s*/', '! ', $content);
+            $content = preg_replace('/\s*,\s*/', ', ', $content);
+            $content = preg_replace('/\s*\:\s*/', ': ', $content);
+            $content = preg_replace('/\s*\;\s*/', '; ', $content);
+        }
+        return $content;
     }
 
     /**
