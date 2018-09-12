@@ -13,7 +13,8 @@ class ChildTest extends \PHPUnit_Framework_TestCase
             'indent'        => '    ',
             'attributes'    => ['style' => 'width: 100px;'],
             'childrenFirst' => true,
-            'whitespace'    => true
+            'whitespace'    => true,
+            'cData'         => false
         ]);
         $this->assertInstanceOf('Pop\Dom\Child', $child);
         $child->setNodeName('title');

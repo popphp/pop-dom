@@ -76,6 +76,9 @@ class Child extends AbstractNode
         $this->nodeName      = $name;
         $this->nodeValue     = $value;
 
+        if (isset($options['cData'])) {
+            $this->cData = (bool)$options['cData'];
+        }
         if (isset($options['childrenFirst'])) {
             $this->childrenFirst = (bool)$options['childrenFirst'];
         }
