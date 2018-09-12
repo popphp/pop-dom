@@ -206,6 +206,36 @@ class ChildTest extends \PHPUnit_Framework_TestCase
         $this->assertNotContains('<h1>', $content);
     }
 
+    public function testNodeWhiteSpace()
+    {
+        $child = new Child('note', '   Hello   ');
+        $this->assertEquals('Hello', $child->getNodeContent(true));
+    }
+
+    public function testTextWhiteSpace()
+    {
+        $child = new Child('note', '   Hello   ');
+        $this->assertEquals('Hello', $child->getTextContent(true));
+    }
+
+    public function testAddNodeValue()
+    {
+        $child = new Child('note', 'Hello');
+        $child->addNodeValue(' World');
+        $this->assertEquals('Hello World', $child->getNodeValue());
+    }
+
+    public function testCData()
+    {
+        $child = new Child('note', "Here's some crazy TEXT!<br />");
+        $child->setAsCData();
+
+        $content = $child->render();
+        $this->assertTrue($child->isCData());
+        $this->assertContains('<![CDATA[', $content);
+        $this->assertContains(']]>', $content);
+    }
+
     /**
      * @runInSeparateProcess
      */

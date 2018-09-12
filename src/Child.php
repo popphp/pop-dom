@@ -39,6 +39,12 @@ class Child extends AbstractNode
     protected $nodeValue = null;
 
     /**
+     * Child element node value CDATA flag
+     * @var boolean
+     */
+    protected $cData = false;
+
+    /**
      * Flag to render children before node value or not
      * @var boolean
      */
@@ -300,6 +306,40 @@ class Child extends AbstractNode
     }
 
     /**
+     * Add to the child node value
+     *
+     * @param  string $value
+     * @return Child
+     */
+    public function addNodeValue($value)
+    {
+        $this->nodeValue .= $value;
+        return $this;
+    }
+
+    /**
+     * Set the child node value as CDATA
+     *
+     * @param  boolean $cData
+     * @return Child
+     */
+    public function setAsCData($cData = true)
+    {
+        $this->cData = (bool)$cData;
+        return $this;
+    }
+
+    /**
+     * Determine if the child node value is CDATA
+     *
+     * @return boolean
+     */
+    public function isCData()
+    {
+        return $this->cData;
+    }
+
+    /**
      * Set an attribute for the child element object
      *
      * @param  string $a
@@ -421,6 +461,10 @@ class Child extends AbstractNode
         $this->indent = (null === $this->indent) ? str_repeat('    ', $depth) : $this->indent;
         $attribs      = '';
         $attribAry    = [];
+
+        if ($this->cData) {
+            $this->nodeValue = '<![CDATA[' . $this->nodeValue . ']]>';
+        }
 
         // Format child attributes, if applicable.
         if (count($this->attributes) > 0) {
