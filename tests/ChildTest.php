@@ -3,8 +3,9 @@
 namespace Pop\Dom\Test;
 
 use Pop\Dom\Child;
+use PHPUnit\Framework\TestCase;
 
-class ChildTest extends \PHPUnit_Framework_TestCase
+class ChildTest extends TestCase
 {
 
     public function testConstructor()

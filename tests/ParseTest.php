@@ -4,9 +4,9 @@ namespace Pop\Dom\Test;
 
 use Pop\Dom\Document;
 use Pop\Dom\Child;
-use Pop\Dom\DomIterator;
+use PHPUnit\Framework\TestCase;
 
-class ParseTest extends \PHPUnit_Framework_TestCase
+class ParseTest extends TestCase
 {
 
     public function testParseString()
