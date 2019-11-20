@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2019 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2020 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -19,9 +19,9 @@ namespace Pop\Dom;
  * @category   Pop
  * @package    Pop\Dom
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2019 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2020 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.2.6
+ * @version    3.2.7
  */
 class Child extends AbstractNode
 {
@@ -479,10 +479,12 @@ class Child extends AbstractNode
 
         // Initialize the node.
         if ($this->nodeName == '#text') {
-            $this->output .= ((!$this->preserveWhiteSpace) ? '' : "{$indent}{$this->indent}") . $this->nodeValue . ((!$this->preserveWhiteSpace) ? '' : "\n");
+            $this->output .= ((!$this->preserveWhiteSpace) ?
+                    '' : "{$indent}{$this->indent}") . $this->nodeValue . ((!$this->preserveWhiteSpace) ? '' : "\n");
         } else {
             if (!$inner) {
-                $this->output .= ((!$this->preserveWhiteSpace) ? '' : "{$indent}{$this->indent}") . "<{$this->nodeName}{$attribs}";
+                $this->output .= ((!$this->preserveWhiteSpace) ?
+                        '' : "{$indent}{$this->indent}") . "<{$this->nodeName}{$attribs}";
             }
 
             if ((null === $indent) && (null !== $this->indent)) {
@@ -505,7 +507,8 @@ class Child extends AbstractNode
                 // Render node value before the child nodes.
                 if (!$this->childrenFirst) {
                     if (null !== $this->nodeValue) {
-                        $this->output .= ((!$this->preserveWhiteSpace) ? '' : str_repeat('    ', $newDepth) . "{$indent}") . "{$this->nodeValue}\n";
+                        $this->output .= ((!$this->preserveWhiteSpace) ?
+                                '' : str_repeat('    ', $newDepth) . "{$indent}") . "{$this->nodeValue}\n";
                     }
                     foreach ($this->childNodes as $child) {
                         $this->output .= $child->render($newDepth, $indent);
@@ -524,9 +527,13 @@ class Child extends AbstractNode
                     }
                     if (!$inner) {
                         if (null !== $this->nodeValue) {
-                            $this->output .= ((!$this->preserveWhiteSpace) ? '' : str_repeat('    ', $newDepth) . "{$indent}") . "{$this->nodeValue}" . ((!$this->preserveWhiteSpace) ? '' : "\n{$origIndent}") . "</{$this->nodeName}>" . (($this->preserveWhiteSpace) ? '' : "\n");
+                            $this->output .= ((!$this->preserveWhiteSpace) ?
+                                    '' : str_repeat('    ', $newDepth) . "{$indent}") .
+                                "{$this->nodeValue}" . ((!$this->preserveWhiteSpace) ?
+                                    '' : "\n{$origIndent}") . "</{$this->nodeName}>" . (($this->preserveWhiteSpace) ? '' : "\n");
                         } else {
-                            $this->output .= ((!$this->preserveWhiteSpace) ? '' : "{$origIndent}") . "</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
+                            $this->output .= ((!$this->preserveWhiteSpace) ?
+                                    '' : "{$origIndent}") . "</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
                         }
                     }
                 }
