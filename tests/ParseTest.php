@@ -26,9 +26,9 @@ HTML;
         $doc = new Document(Document::HTML);
         $doc->addChild(Child::parseString($html));
         $render = (string)$doc;
-        $this->assertContains('<title>Hello World Title</title>', $render);
-        $this->assertContains('class="top-header"', $render);
-        $this->assertContains('<p class="special-p">', $render);
+        $this->assertStringContainsString('<title>Hello World Title</title>', $render);
+        $this->assertStringContainsString('class="top-header"', $render);
+        $this->assertStringContainsString('<p class="special-p">', $render);
     }
 
     public function testParseFile()
@@ -36,9 +36,9 @@ HTML;
         $doc = new Document(Document::HTML);
         $doc->addChild(Child::parseFile(__DIR__ . '/tmp/test.html'));
         $render = (string)$doc;
-        $this->assertContains('<title>Hello World Title</title>', $render);
-        $this->assertContains('class="top-header"', $render);
-        $this->assertContains('<p class="special-p">', $render);
+        $this->assertStringContainsString('<title>Hello World Title</title>', $render);
+        $this->assertStringContainsString('class="top-header"', $render);
+        $this->assertStringContainsString('<p class="special-p">', $render);
     }
 
     public function testParseFileException()
@@ -59,8 +59,8 @@ HTML;
         $doc = new Document(Document::HTML);
         $doc->addChildren(Child::parseString($html));
         $render = (string)$doc;
-        $this->assertContains('class="top-header"', $render);
-        $this->assertContains('<p class="special-p">', $render);
+        $this->assertStringContainsString('class="top-header"', $render);
+        $this->assertStringContainsString('<p class="special-p">', $render);
     }
 
 }

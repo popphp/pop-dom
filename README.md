@@ -1,7 +1,7 @@
 pop-dom
 =======
 
-[![Build Status](https://travis-ci.org/popphp/pop-dom.svg?branch=master)](https://travis-ci.org/popphp/pop-dom)
+[![Build Status](https://github.com/popphp/pop-dom/workflows/phpunit/badge.svg)](https://github.com/popphp/pop-dom/actions)
 [![Coverage Status](http://cc.popphp.org/coverage.php?comp=pop-dom)](http://cc.popphp.org/pop-dom/)
 
 OVERVIEW

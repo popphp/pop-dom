@@ -15,18 +15,18 @@ class DomTest extends TestCase
         $this->assertInstanceOf('Pop\Dom\Document', $doc);
         $this->assertEquals('    ', $doc->getIndent());
         $this->assertEquals(1, count($doc->getChildren()));
-        $this->assertContains('<!DOCTYPE html>', $doc->getDoctype());
+        $this->assertStringContainsString('<!DOCTYPE html>', $doc->getDoctype());
     }
 
     public function testSetDoctype()
     {
         $doc = new Document();
         $doc->setDoctype(Document::ATOM);
-        $this->assertContains('<?xml version=', $doc->getDoctype());
+        $this->assertStringContainsString('<?xml version=', $doc->getDoctype());
         $doc->setDoctype(Document::RSS);
-        $this->assertContains('<?xml version=', $doc->getDoctype());
+        $this->assertStringContainsString('<?xml version=', $doc->getDoctype());
         $doc->setDoctype(Document::XML);
-        $this->assertContains('<?xml version=', $doc->getDoctype());
+        $this->assertStringContainsString('<?xml version=', $doc->getDoctype());
     }
 
     public function testSetDoctypeException()
@@ -79,7 +79,7 @@ class DomTest extends TestCase
             new Child('title', 'Hello World'),
             new Child('h1', 'Header')
         ]);
-        $this->assertContains('<h1>Header</h1>', (string)$doc);
+        $this->assertStringContainsString('<h1>Header</h1>', (string)$doc);
     }
 
     /**
@@ -94,7 +94,7 @@ class DomTest extends TestCase
         echo $doc;
         $result = ob_get_clean();
 
-        $this->assertContains('<h1>Header</h1>', $result);
+        $this->assertStringContainsString('<h1>Header</h1>', $result);
     }
 
 }

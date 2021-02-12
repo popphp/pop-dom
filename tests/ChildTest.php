@@ -104,8 +104,8 @@ class ChildTest extends TestCase
             'style' => 'display: block;'
         ]);
         $child->addChild(new Child('p', 'Paragraph'));
-        $this->assertContains('<h1 id="header" style="display: block;">', (string)$child);
-        $this->assertContains('<p>Paragraph</p>', (string)$child);
+        $this->assertStringContainsString('<h1 id="header" style="display: block;">', (string)$child);
+        $this->assertStringContainsString('<p>Paragraph</p>', (string)$child);
     }
 
     public function testRenderChildrenFirst()
@@ -118,8 +118,8 @@ class ChildTest extends TestCase
             'style' => 'display: block;'
         ]);
         $child->addChild(new Child('p', 'Paragraph'));
-        $this->assertContains('<h1 id="header" style="display: block;">', (string)$child);
-        $this->assertContains('<p>Paragraph</p>', (string)$child);
+        $this->assertStringContainsString('<h1 id="header" style="display: block;">', (string)$child);
+        $this->assertStringContainsString('<p>Paragraph</p>', (string)$child);
     }
 
     public function testRenderNoNodeValue()
@@ -164,8 +164,8 @@ class ChildTest extends TestCase
 
         $body = $parent->getChild(1);
         $content = $body->getNodeContent();
-        $this->assertContains('<strong>more</strong>', $content);
-        $this->assertNotContains('<body', $content);
+        $this->assertStringContainsString('<strong>more</strong>', $content);
+        $this->assertStringNotContainsString('<body', $content);
     }
 
     public function testGetTextContent()
@@ -204,8 +204,8 @@ class ChildTest extends TestCase
 
         $body = $parent->getChild(1);
         $content = $body->getTextContent();
-        $this->assertContains('more', $content);
-        $this->assertNotContains('<h1>', $content);
+        $this->assertStringContainsString('more', $content);
+        $this->assertStringNotContainsString('<h1>', $content);
     }
 
     public function testNodeWhiteSpace()
@@ -234,8 +234,8 @@ class ChildTest extends TestCase
 
         $content = $child->render();
         $this->assertTrue($child->isCData());
-        $this->assertContains('<![CDATA[', $content);
-        $this->assertContains(']]>', $content);
+        $this->assertStringContainsString('<![CDATA[', $content);
+        $this->assertStringContainsString(']]>', $content);
     }
 
     /**
@@ -247,7 +247,7 @@ class ChildTest extends TestCase
         ob_start();
         echo $child;
         $result = ob_get_clean();
-        $this->assertContains('<h1>Header</h1>', $result);
+        $this->assertStringContainsString('<h1>Header</h1>', $result);
     }
 
 }
