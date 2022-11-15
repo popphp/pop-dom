@@ -13,6 +13,8 @@
  */
 namespace Pop\Dom;
 
+use ReturnTypeWillChange;
+
 /**
  * Dom iterator class
  *
@@ -55,6 +57,7 @@ class DomIterator implements \RecursiveIterator
      * Get current method
      * @return \DOMNode
      */
+    #[ReturnTypeWillChange]
     public function current()
     {
         return $this->nodeList->item($this->position);
@@ -64,6 +67,7 @@ class DomIterator implements \RecursiveIterator
      * Get children method
      * @return DomIterator
      */
+    #[ReturnTypeWillChange]
     public function getChildren()
     {
         return new self($this->current());
@@ -73,7 +77,7 @@ class DomIterator implements \RecursiveIterator
      * Has children method
      * @return bool
      */
-    public function hasChildren()
+    public function hasChildren(): bool
     {
         return $this->current()->hasChildNodes();
     }
@@ -82,7 +86,7 @@ class DomIterator implements \RecursiveIterator
      * Key method
      * @return int
      */
-    public function key()
+    public function key(): int
     {
         return $this->position;
     }
@@ -90,6 +94,7 @@ class DomIterator implements \RecursiveIterator
     /**
      * Next method
      */
+    #[ReturnTypeWillChange]
     public function next()
     {
         $this->position++;
@@ -98,6 +103,7 @@ class DomIterator implements \RecursiveIterator
     /**
      * Rewind method
      */
+    #[ReturnTypeWillChange]
     public function rewind()
     {
         $this->position = 0;
@@ -107,7 +113,7 @@ class DomIterator implements \RecursiveIterator
      * Is valid method
      * @return bool
      */
-    public function valid()
+    public function valid(): bool
     {
         return $this->position < $this->nodeList->length;
     }
