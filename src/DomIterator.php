@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -13,7 +13,8 @@
  */
 namespace Pop\Dom;
 
-use ReturnTypeWillChange;
+use DOMNodeList;
+use DOMNode;
 
 /**
  * Dom iterator class
@@ -21,9 +22,9 @@ use ReturnTypeWillChange;
  * @category   Pop
  * @package    Pop\Dom
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.3.0
+ * @version    4.0.0
  */
 class DomIterator implements \RecursiveIterator
 {
@@ -32,33 +33,31 @@ class DomIterator implements \RecursiveIterator
      * Current position
      * @var int
      */
-    protected $position;
+    protected int $position = 0;
 
     /**
      * Node List
-     * @var \DOMNodeList
+     * @var ?DOMNodeList
      */
-    protected $nodeList;
+    protected ?DOMNodeList $nodeList = null;
 
     /**
      * Constructor
      *
      * Instantiate the DOM iterator object
      *
-     * @param \DOMNode $domNode
+     * @param DOMNode $domNode
      */
-    public function __construct(\DOMNode $domNode)
+    public function __construct(DOMNode $domNode)
     {
-        $this->position = 0;
         $this->nodeList = $domNode->childNodes;
     }
 
     /**
      * Get current method
-     * @return \DOMNode
+     * @return DOMNode
      */
-    #[ReturnTypeWillChange]
-    public function current()
+    public function current(): DOMNode
     {
         return $this->nodeList->item($this->position);
     }
@@ -67,8 +66,7 @@ class DomIterator implements \RecursiveIterator
      * Get children method
      * @return DomIterator
      */
-    #[ReturnTypeWillChange]
-    public function getChildren()
+    public function getChildren(): DomIterator
     {
         return new self($this->current());
     }
@@ -93,18 +91,18 @@ class DomIterator implements \RecursiveIterator
 
     /**
      * Next method
+     * @return void
      */
-    #[ReturnTypeWillChange]
-    public function next()
+    public function next(): void
     {
         $this->position++;
     }
 
     /**
      * Rewind method
+     * @return void
      */
-    #[ReturnTypeWillChange]
-    public function rewind()
+    public function rewind(): void
     {
         $this->position = 0;
     }

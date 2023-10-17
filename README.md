@@ -19,6 +19,13 @@ Install `pop-dom` using Composer.
 
     composer require popphp/pop-dom
 
+Or, require it in your composer.json file
+
+    "require": {
+        "popphp/pop-dom" : "^4.0.0"
+    }
+
+
 BASIC USAGE
 -----------
 

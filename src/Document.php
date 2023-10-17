@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -19,9 +19,9 @@ namespace Pop\Dom;
  * @category   Pop
  * @package    Pop\Dom
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.3.0
+ * @version    4.0.0
  */
 class Document extends AbstractNode
 {
@@ -54,25 +54,25 @@ class Document extends AbstractNode
      * Document type
      * @var string
      */
-    protected $doctype = 'XML';
+    protected string $doctype = 'XML';
 
     /**
      * Document content type
      * @var string
      */
-    protected $contentType = 'application/xml';
+    protected string $contentType = 'application/xml';
 
     /**
      * Document charset
      * @var string
      */
-    protected $charset = 'utf-8';
+    protected string $charset = 'utf-8';
 
     /**
      * Document doctypes
      * @var array
      */
-    protected static $doctypes = [
+    protected static array $doctypes = [
         'XML'  => "<?xml version=\"1.0\" encoding=\"[{charset}]\"?>\n",
         'HTML' =>"<!DOCTYPE html>\n"
     ];
@@ -82,18 +82,19 @@ class Document extends AbstractNode
      *
      * Instantiate the document object
      *
-     * @param  string $doctype
-     * @param  Child  $childNode
-     * @param  string $indent
+     * @param  string  $doctype
+     * @param  ?Child  $childNode
+     * @param  ?string $indent
+     * @throws Exception
      */
-    public function __construct($doctype = 'XML', Child $childNode = null, $indent = null)
+    public function __construct(string $doctype = 'XML', ?Child $childNode = null, ?string $indent = null)
     {
         $this->setDoctype($doctype);
 
-        if (null !== $childNode) {
+        if ($childNode !== null) {
             $this->addChild($childNode);
         }
-        if (null !== $indent) {
+        if ($indent !== null) {
             $this->setIndent($indent);
         }
     }
@@ -103,7 +104,7 @@ class Document extends AbstractNode
      *
      * @return string
      */
-    public function getDoctype()
+    public function getDoctype(): string
     {
         return str_replace('[{charset}]', $this->charset, Document::$doctypes[$this->doctype]);
     }
@@ -113,7 +114,7 @@ class Document extends AbstractNode
      *
      * @return string
      */
-    public function getCharset()
+    public function getCharset(): string
     {
         return $this->charset;
     }
@@ -123,7 +124,7 @@ class Document extends AbstractNode
      *
      * @return string
      */
-    public function getContentType()
+    public function getContentType(): string
     {
         return $this->contentType;
     }
@@ -135,7 +136,7 @@ class Document extends AbstractNode
      * @throws Exception
      * @return Document
      */
-    public function setDoctype($doctype)
+    public function setDoctype(string $doctype): Document
     {
         $doctype = strtoupper($doctype);
 
@@ -171,7 +172,7 @@ class Document extends AbstractNode
      * @param  string $char
      * @return Document
      */
-    public function setCharset($char)
+    public function setCharset(string $char): Document
     {
         $this->charset = $char;
         return $this;
@@ -183,7 +184,7 @@ class Document extends AbstractNode
      * @param  string $content
      * @return Document
      */
-    public function setContentType($content)
+    public function setContentType(string $content): Document
     {
         $this->contentType = $content;
         return $this;
@@ -194,11 +195,11 @@ class Document extends AbstractNode
      *
      * @return string
      */
-    public function render()
+    public function render(): string
     {
         $this->output = null;
 
-        if (null !== $this->doctype) {
+        if ($this->doctype !== null) {
             $this->output .= str_replace('[{charset}]', $this->charset, Document::$doctypes[$this->doctype]);
         }
 
@@ -214,7 +215,7 @@ class Document extends AbstractNode
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->render();
     }

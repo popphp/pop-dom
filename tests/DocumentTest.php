@@ -6,7 +6,7 @@ use Pop\Dom\Document;
 use Pop\Dom\Child;
 use PHPUnit\Framework\TestCase;
 
-class DomTest extends TestCase
+class DocumentTest extends TestCase
 {
 
     public function testConstructor()

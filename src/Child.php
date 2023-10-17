@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -13,54 +13,56 @@
  */
 namespace Pop\Dom;
 
+use RecursiveIteratorIterator;
+
 /**
  * Dom child class
  *
  * @category   Pop
  * @package    Pop\Dom
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.3.0
+ * @version    4.0.0
  */
 class Child extends AbstractNode
 {
 
     /**
      * Child element node name
-     * @var string
+     * @var ?string
      */
-    protected $nodeName = null;
+    protected ?string $nodeName = null;
 
     /**
      * Child element node value
-     * @var string
+     * @var ?string
      */
-    protected $nodeValue = null;
+    protected ?string $nodeValue = null;
 
     /**
      * Child element node value CDATA flag
-     * @var boolean
+     * @var bool
      */
-    protected $cData = false;
+    protected bool $cData = false;
 
     /**
      * Flag to render children before node value or not
-     * @var boolean
+     * @var bool
      */
-    protected $childrenFirst = false;
+    protected bool $childrenFirst = false;
 
     /**
      * Child element attributes
      * @var array
      */
-    protected $attributes = [];
+    protected array $attributes = [];
 
     /**
      * Flag to preserve whitespace
-     * @var boolean
+     * @var bool
      */
-    protected $preserveWhiteSpace = true;
+    protected bool $preserveWhiteSpace = true;
 
     /**
      * Constructor
@@ -68,13 +70,13 @@ class Child extends AbstractNode
      * Instantiate the DOM element object
      *
      * @param  string  $name
-     * @param  string  $value
+     * @param  ?string $value
      * @param  array   $options
      */
-    public function __construct($name, $value = null, array $options = [])
+    public function __construct(string $name, ?string $value = null, array $options = [])
     {
-        $this->nodeName      = $name;
-        $this->nodeValue     = $value;
+        $this->nodeName  = $name;
+        $this->nodeValue = $value;
 
         if (isset($options['cData'])) {
             $this->cData = (bool)$options['cData'];
@@ -97,11 +99,11 @@ class Child extends AbstractNode
      * Static factory method to create a child object
      *
      * @param  string  $name
-     * @param  string  $value
+     * @param  ?string $value
      * @param  array   $options
      * @return Child
      */
-    public static function create($name, $value = null, array $options = [])
+    public static function create(string $name, ?string $value = null, array $options = [])
     {
         return new self($name, $value, $options);
     }
@@ -112,14 +114,14 @@ class Child extends AbstractNode
      * @param  string $string
      * @return Child|array
      */
-    public static function parseString($string)
+    public static function parseString(string $string): Child|array
     {
         $doc = new \DOMDocument();
         $doc->loadHTML($string);
 
-        $dit = new \RecursiveIteratorIterator(
+        $dit = new RecursiveIteratorIterator(
             new DomIterator($doc),
-            \RecursiveIteratorIterator::SELF_FIRST
+            RecursiveIteratorIterator::SELF_FIRST
         );
 
         $parent     = null;
@@ -131,25 +133,25 @@ class Child extends AbstractNode
         foreach($dit as $node) {
             if (($node->nodeType == XML_ELEMENT_NODE) || ($node->nodeType == XML_TEXT_NODE)) {
                 $attribs = [];
-                if (null !== $node->attributes) {
+                if ($node->attributes !== null) {
                     for ($i = 0; $i < $node->attributes->length; $i++) {
                         $name = $node->attributes->item($i)->name;
                         $attribs[$name] = $node->getAttribute($name);
                     }
                 }
-                if (null === $parent) {
+                if ($parent === null) {
                     $parent = new Child($node->nodeName);
                 } else {
-                    if (($node->nodeType == XML_TEXT_NODE) && (null !== $child)) {
+                    if (($node->nodeType == XML_TEXT_NODE) && ($child !== null)) {
                         $nodeValue = trim($node->nodeValue);
                         if (!empty($nodeValue)) {
-                            if (($endElement) && (null !== $child->getParent()) && (null !== $node->previousSibling)) {
+                            if (($endElement) && ($child->getParent() !== null) && ($node->previousSibling !== null)) {
                                 $prev = $node->previousSibling->nodeName;
                                 $par  = $child->getParent();
-                                while ((null !== $par) && ($prev != $par->getNodeName())) {
+                                while (($par !== null) && ($prev != $par->getNodeName())) {
                                     $par = $par->getParent();
                                 }
-                                if (null === $par) {
+                                if ($par === null) {
                                     $par = $child->getParent();
                                 } else {
                                     $par = $par->getParent();
@@ -163,13 +165,13 @@ class Child extends AbstractNode
                     } else {
                         // down
                         if ($dit->getDepth() > $lastDepth) {
-                            if (null !== $child) {
+                            if ($child !== null) {
                                 $parent = $child;
                             }
                             $child  = new Child($node->nodeName);
                             $parent->addChild($child);
                             $endElement = false;
-                            // up
+                        // up
                         } else if ($dit->getDepth() < $lastDepth) {
                             while ($parent->getNodeName() != $node->parentNode->nodeName) {
                                 $parent = $parent->getParent();
@@ -192,7 +194,7 @@ class Child extends AbstractNode
                 }
             }
         }
-        while (null !== $parent->getParent()) {
+        while ($parent->getParent() !== null) {
             $parent = $parent->getParent();
         }
 
@@ -213,7 +215,7 @@ class Child extends AbstractNode
      * @throws Exception
      * @return Child
      */
-    public static function parseFile($file)
+    public static function parseFile(string $file): Child
     {
         if (!file_exists($file)) {
             throw new Exception('Error: That file does not exist.');
@@ -226,7 +228,7 @@ class Child extends AbstractNode
      *
      * @return string
      */
-    public function getNodeName()
+    public function getNodeName(): string
     {
         return $this->nodeName;
     }
@@ -236,7 +238,7 @@ class Child extends AbstractNode
      *
      * @return string
      */
-    public function getNodeValue()
+    public function getNodeValue(): string
     {
         return $this->nodeValue;
     }
@@ -244,10 +246,10 @@ class Child extends AbstractNode
     /**
      * Return the child node content, including tags, etc
      *
-     * @param  boolean $ignoreWhiteSpace
+     * @param  bool $ignoreWhiteSpace
      * @return string
      */
-    public function getNodeContent($ignoreWhiteSpace = false)
+    public function getNodeContent(bool $ignoreWhiteSpace = false): string
     {
         $content = $this->render(0, null, true);
         if ($ignoreWhiteSpace) {
@@ -265,10 +267,10 @@ class Child extends AbstractNode
     /**
      * Return the child node content, including tags, etc
      *
-     * @param  boolean $ignoreWhiteSpace
+     * @param  bool $ignoreWhiteSpace
      * @return string
      */
-    public function getTextContent($ignoreWhiteSpace = false)
+    public function getTextContent(bool $ignoreWhiteSpace = false): string
     {
         $content = strip_tags($this->render(0, null, true));
 
@@ -290,7 +292,7 @@ class Child extends AbstractNode
      * @param  string $name
      * @return Child
      */
-    public function setNodeName($name)
+    public function setNodeName(string $name): Child
     {
         $this->nodeName = $name;
         return $this;
@@ -302,7 +304,7 @@ class Child extends AbstractNode
      * @param  string $value
      * @return Child
      */
-    public function setNodeValue($value)
+    public function setNodeValue(string $value): Child
     {
         $this->nodeValue = $value;
         return $this;
@@ -314,7 +316,7 @@ class Child extends AbstractNode
      * @param  string $value
      * @return Child
      */
-    public function addNodeValue($value)
+    public function addNodeValue(string $value): Child
     {
         $this->nodeValue .= $value;
         return $this;
@@ -323,21 +325,21 @@ class Child extends AbstractNode
     /**
      * Set the child node value as CDATA
      *
-     * @param  boolean $cData
+     * @param  bool $cData
      * @return Child
      */
-    public function setAsCData($cData = true)
+    public function setAsCData(bool $cData = true): Child
     {
-        $this->cData = (bool)$cData;
+        $this->cData = $cData;
         return $this;
     }
 
     /**
      * Determine if the child node value is CDATA
      *
-     * @return boolean
+     * @return bool
      */
-    public function isCData()
+    public function isCData(): bool
     {
         return $this->cData;
     }
@@ -349,7 +351,7 @@ class Child extends AbstractNode
      * @param  string $v
      * @return Child
      */
-    public function setAttribute($a, $v)
+    public function setAttribute(string $a, string $v): Child
     {
         $this->attributes[$a] = $v;
         return $this;
@@ -361,7 +363,7 @@ class Child extends AbstractNode
      * @param  array $a
      * @return Child
      */
-    public function setAttributes(array $a)
+    public function setAttributes(array $a): Child
     {
         foreach ($a as $name => $value) {
             $this->attributes[$name] = $value;
@@ -373,9 +375,9 @@ class Child extends AbstractNode
      * Determine if the child object has an attribute
      *
      * @param  string $name
-     * @return boolean
+     * @return bool
      */
-    public function hasAttribute($name)
+    public function hasAttribute(string $name): bool
     {
         return (isset($this->attributes[$name]));
     }
@@ -384,11 +386,11 @@ class Child extends AbstractNode
      * Get the attribute of the child object
      *
      * @param  string $name
-     * @return string
+     * @return string|null
      */
-    public function getAttribute($name)
+    public function getAttribute(string $name): string|null
     {
-        return (isset($this->attributes[$name])) ? $this->attributes[$name] : null;
+        return $this->attributes[$name] ?? null;
     }
 
     /**
@@ -396,7 +398,7 @@ class Child extends AbstractNode
      *
      * @return array
      */
-    public function getAttributes()
+    public function getAttributes(): array
     {
         return $this->attributes;
     }
@@ -407,7 +409,7 @@ class Child extends AbstractNode
      * @param  string $a
      * @return Child
      */
-    public function removeAttribute($a)
+    public function removeAttribute(string $a): Child
     {
         if (isset($this->attributes[$a])) {
             unset($this->attributes[$a]);
@@ -418,9 +420,9 @@ class Child extends AbstractNode
     /**
      * Determine if child nodes render first, before the node value
      *
-     * @return boolean
+     * @return bool
      */
-    public function isChildrenFirst()
+    public function isChildrenFirst(): bool
     {
         return $this->childrenFirst;
     }
@@ -431,9 +433,9 @@ class Child extends AbstractNode
      * @param  bool $first
      * @return Child
      */
-    public function setChildrenFirst($first = true)
+    public function setChildrenFirst(bool $first = true): Child
     {
-        $this->childrenFirst = (bool)$first;
+        $this->childrenFirst = $first;
         return $this;
     }
 
@@ -443,9 +445,9 @@ class Child extends AbstractNode
      * @param  bool $preserve
      * @return Child
      */
-    public function preserveWhiteSpace($preserve = true)
+    public function preserveWhiteSpace(bool $preserve = true): Child
     {
-        $this->preserveWhiteSpace = (bool)$preserve;
+        $this->preserveWhiteSpace = $preserve;
         return $this;
     }
 
@@ -453,15 +455,15 @@ class Child extends AbstractNode
      * Render the child and its child nodes.
      *
      * @param  int     $depth
-     * @param  string  $indent
-     * @param  boolean $inner
-     * @return mixed
+     * @param  ?string $indent
+     * @param  bool    $inner
+     * @return string|null
      */
-    public function render($depth = 0, $indent = null, $inner = false)
+    public function render(int $depth = 0, ?string $indent = null, bool $inner = false): string|null
     {
         // Initialize child object properties and variables.
         $this->output = '';
-        $this->indent = (null === $this->indent) ? str_repeat('    ', $depth) : $this->indent;
+        $this->indent = ($this->indent === null) ? str_repeat('    ', $depth) : $this->indent;
         $attribs      = '';
         $attribAry    = [];
 
@@ -487,7 +489,7 @@ class Child extends AbstractNode
                         '' : "{$indent}{$this->indent}") . "<{$this->nodeName}{$attribs}";
             }
 
-            if ((null === $indent) && (null !== $this->indent)) {
+            if (($indent === null) && ($this->indent !== null)) {
                 $indent     = $this->indent;
                 $origIndent = $this->indent;
             } else {
@@ -506,7 +508,7 @@ class Child extends AbstractNode
 
                 // Render node value before the child nodes.
                 if (!$this->childrenFirst) {
-                    if (null !== $this->nodeValue) {
+                    if ($this->nodeValue !== null) {
                         $this->output .= ((!$this->preserveWhiteSpace) ?
                                 '' : str_repeat('    ', $newDepth) . "{$indent}") . "{$this->nodeValue}\n";
                     }
@@ -526,7 +528,7 @@ class Child extends AbstractNode
                         $this->output .= $child->render($newDepth, $indent);
                     }
                     if (!$inner) {
-                        if (null !== $this->nodeValue) {
+                        if ($this->nodeValue !== null) {
                             $this->output .= ((!$this->preserveWhiteSpace) ?
                                     '' : str_repeat('    ', $newDepth) . "{$indent}") .
                                 "{$this->nodeValue}" . ((!$this->preserveWhiteSpace) ?
@@ -540,7 +542,7 @@ class Child extends AbstractNode
             // Else, render the child node.
             } else {
                 if (!$inner) {
-                    if ((null !== $this->nodeValue) || ($this->nodeName == 'textarea')) {
+                    if (($this->nodeValue !== null) || ($this->nodeName == 'textarea')) {
                         $this->output .= ">";
                         $this->output .= "{$this->nodeValue}</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
                     } else {
@@ -563,7 +565,7 @@ class Child extends AbstractNode
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->render();
     }

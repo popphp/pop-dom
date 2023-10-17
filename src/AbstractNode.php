@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -13,49 +13,51 @@
  */
 namespace Pop\Dom;
 
+use InvalidArgumentException;
+
 /**
  * Abstract node class
  *
  * @category   Pop
  * @package    Pop\Dom
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.3.0
+ * @version    4.0.0
  */
-abstract class AbstractNode
+abstract class AbstractNode implements NodeInterface
 {
 
     /**
      * Object child nodes
      * @var array
      */
-    protected $childNodes = [];
+    protected array $childNodes = [];
 
     /**
      * Indentation for formatting purposes
-     * @var string
+     * @var ?string
      */
-    protected $indent = null;
+    protected ?string $indent = null;
 
     /**
      * Child output
-     * @var string
+     * @var ?string
      */
-    protected $output = null;
+    protected ?string $output = null;
 
     /**
      * Parent node
-     * @var AbstractNode
+     * @var ?AbstractNode
      */
-    protected $parent = null;
+    protected ?AbstractNode $parent = null;
 
     /**
      * Return the indent
      *
      * @return string
      */
-    public function getIndent()
+    public function getIndent(): string
     {
         return $this->indent;
     }
@@ -64,9 +66,9 @@ abstract class AbstractNode
      * Set the indent
      *
      * @param  string $indent
-     * @return mixed
+     * @return AbstractNode
      */
-    public function setIndent($indent)
+    public function setIndent(string $indent): AbstractNode
     {
         $this->indent = $indent;
         return $this;
@@ -75,9 +77,9 @@ abstract class AbstractNode
     /**
      * Return the parent node
      *
-     * @return AbstractNode
+     * @return AbstractNode|null
      */
-    public function getParent()
+    public function getParent(): AbstractNode|null
     {
         return $this->parent;
     }
@@ -88,7 +90,7 @@ abstract class AbstractNode
      * @param  AbstractNode $parent
      * @return AbstractNode
      */
-    public function setParent(AbstractNode $parent)
+    public function setParent(NodeInterface $parent): AbstractNode
     {
         $this->parent = $parent;
         return $this;
@@ -97,11 +99,11 @@ abstract class AbstractNode
     /**
      * Add a child to the object
      *
-     * @param  mixed $c
-     * @throws \InvalidArgumentException
-     * @return mixed
+     * @param  Child $c
+     * @throws InvalidArgumentException
+     * @return AbstractNode
      */
-    public function addChild(Child $c)
+    public function addChild(Child $c): AbstractNode
     {
         $c->setParent($this);
         $this->childNodes[] = $c;
@@ -111,11 +113,11 @@ abstract class AbstractNode
     /**
      * Add children to the object
      *
-     * @param  $children
+     * @param  mixed $children
      * @throws Exception
-     * @return mixed
+     * @return AbstractNode
      */
-    public function addChildren($children)
+    public function addChildren(mixed $children): AbstractNode
     {
         if (is_array($children)) {
             foreach ($children as $child) {
@@ -135,9 +137,9 @@ abstract class AbstractNode
     /**
      * Get whether or not the child object has children
      *
-     * @return boolean
+     * @return bool
      */
-    public function hasChildren()
+    public function hasChildren(): bool
     {
         return (count($this->childNodes) > 0);
     }
@@ -145,9 +147,9 @@ abstract class AbstractNode
     /**
      * Get whether or not the child object has children (alias)
      *
-     * @return boolean
+     * @return bool
      */
-    public function hasChildNodes()
+    public function hasChildNodes(): bool
     {
         return (count($this->childNodes) > 0);
     }
@@ -155,12 +157,12 @@ abstract class AbstractNode
     /**
      * Get the child nodes of the object
      *
-     * @param int $i
-     * @return Child
+     * @param  int $i
+     * @return Child|null
      */
-    public function getChild($i)
+    public function getChild(int $i): Child|null
     {
-        return (isset($this->childNodes[(int)$i])) ? $this->childNodes[(int)$i] : null;
+        return $this->childNodes[(int)$i] ?? null;
     }
 
     /**
@@ -168,7 +170,7 @@ abstract class AbstractNode
      *
      * @return array
      */
-    public function getChildren()
+    public function getChildren(): array
     {
         return $this->childNodes;
     }
@@ -178,7 +180,7 @@ abstract class AbstractNode
      *
      * @return array
      */
-    public function getChildNodes()
+    public function getChildNodes(): array
     {
         return $this->childNodes;
     }
@@ -189,7 +191,7 @@ abstract class AbstractNode
      * @param  int  $i
      * @return void
      */
-    public function removeChild($i)
+    public function removeChild(int $i): void
     {
         if (isset($this->childNodes[$i])) {
             unset($this->childNodes[$i]);
@@ -201,7 +203,7 @@ abstract class AbstractNode
      *
      * @return void
      */
-    public function removeChildren()
+    public function removeChildren(): void
     {
         $this->childNodes = [];
     }
