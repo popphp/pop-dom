@@ -226,9 +226,9 @@ class Child extends AbstractNode
     /**
      * Return the child node name
      *
-     * @return string
+     * @return string|null
      */
-    public function getNodeName(): string
+    public function getNodeName(): string|null
     {
         return $this->nodeName;
     }
@@ -236,9 +236,9 @@ class Child extends AbstractNode
     /**
      * Return the child node value
      *
-     * @return string
+     * @return string|null
      */
-    public function getNodeValue(): string
+    public function getNodeValue(): string|null
     {
         return $this->nodeValue;
     }
