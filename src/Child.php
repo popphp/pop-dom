@@ -383,6 +383,16 @@ class Child extends AbstractNode
     }
 
     /**
+     * Determine if the child object has attributes
+     *
+     * @return bool
+     */
+    public function hasAttributes(): bool
+    {
+        return (count($this->attributes) > 0);
+    }
+
+    /**
      * Get the attribute of the child object
      *
      * @param  string $name
@@ -472,8 +482,9 @@ class Child extends AbstractNode
         }
 
         // Format child attributes, if applicable.
-        if (count($this->attributes) > 0) {
-            foreach ($this->attributes as $key => $value) {
+        if ($this->hasAttributes()) {
+            $attributes = $this->getAttributes();
+            foreach ($attributes as $key => $value) {
                 $attribAry[] = $key . "=\"" . $value . "\"";
             }
             $attribs = ' ' . implode(' ', $attribAry);
