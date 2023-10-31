@@ -121,8 +121,6 @@ echo $doc;
 Parsing
 -------
 
-### Parsing a DOM Document
-
 You can parse from a string of XML or HTML and it will return an object graph of Child elements
 that you can further manipulate or edit to then output: 
 
