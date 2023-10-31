@@ -65,6 +65,9 @@ echo $div;
 ### Building a full DOM document
 
 ```php
+use Pop\Dom\Document;
+use Pop\Dom\Child;
+
 // Title element
 $title = new Child('title', 'This is the title');
 
@@ -121,7 +124,7 @@ echo $doc;
 Parsing
 -------
 
-You can parse from a string of XML or HTML and it will return an object graph of Child elements
+You can parse from a string of XML or HTML and it will return an object of Child elements
 that you can further manipulate or edit to then output: 
 
 ```php
