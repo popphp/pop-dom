@@ -18,7 +18,7 @@ Overview
 you can easily create or parse document nodes and their children and have control over node content and
 attributes.
 
-`pop-dom`is a component of the [Pop PHP Framework](http://www.popphp.org/).
+`pop-dom` is a component of the [Pop PHP Framework](http://www.popphp.org/).
 
 [Top](#pop-dom)
 
