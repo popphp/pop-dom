@@ -4,7 +4,15 @@ pop-dom
 [![Build Status](https://github.com/popphp/pop-dom/workflows/phpunit/badge.svg)](https://github.com/popphp/pop-dom/actions)
 [![Coverage Status](http://cc.popphp.org/coverage.php?comp=pop-dom)](http://cc.popphp.org/pop-dom/)
 
-OVERVIEW
+[![Join the chat at https://popphp.slack.com](https://media.popphp.org/img/slack.svg)](https://popphp.slack.com)
+[![Join the chat at https://discord.gg/D9JBxPa5](https://media.popphp.org/img/discord.svg)](https://discord.gg/D9JBxPa5)
+
+* [Overview](#overview)
+* [Install](#install)
+* [Quickstart](#quickstart)
+* [Parsing](#parsing)
+
+Overview
 --------
 `pop-dom` is a component for generating, rendering and parsing DOM documents and elements. With it,
 you can easily create or parse document nodes and their children and have control over node content and
@@ -12,7 +20,9 @@ attributes.
 
 `pop-dom`is a component of the [Pop PHP Framework](http://www.popphp.org/).
 
-INSTALL
+[Top](#pop-dom)
+
+Install
 -------
 
 Install `pop-dom` using Composer.
@@ -25,9 +35,10 @@ Or, require it in your composer.json file
         "popphp/pop-dom" : "^4.0.0"
     }
 
+[Top](#pop-dom)
 
-BASIC USAGE
------------
+Quickstart
+----------
 
 ### A simple DOM node fragment
 
@@ -105,6 +116,11 @@ echo $doc;
 </html>
 ```
 
+[Top](#pop-dom)
+
+Parsing
+-------
+
 ### Parsing a DOM Document
 
 You can parse from a string of XML or HTML and it will return an object graph of Child elements
@@ -134,3 +150,5 @@ And you can parse from a file as well:
 ```php
 $children = Child::parseFile('index.html');
 ```
+
+[Top](#pop-dom)
