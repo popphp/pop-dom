@@ -543,7 +543,7 @@ class Child extends AbstractNode
                             $this->output .= ((!$this->preserveWhiteSpace) ?
                                     '' : str_repeat('    ', $newDepth) . "{$indent}") .
                                 "{$this->nodeValue}" . ((!$this->preserveWhiteSpace) ?
-                                    '' : "\n{$origIndent}") . "</{$this->nodeName}>" . (($this->preserveWhiteSpace) ? '' : "\n");
+                                    '' : "\n{$origIndent}") . "</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
                         } else {
                             $this->output .= ((!$this->preserveWhiteSpace) ?
                                     '' : "{$origIndent}") . "</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
