@@ -103,7 +103,7 @@ class Child extends AbstractNode
      * @param  array   $options
      * @return Child
      */
-    public static function create(string $name, ?string $value = null, array $options = [])
+    public static function create(string $name, ?string $value = null, array $options = []): Child
     {
         return new self($name, $value, $options);
     }
@@ -555,7 +555,9 @@ class Child extends AbstractNode
                 if (!$inner) {
                     if (($this->nodeValue !== null) || ($this->nodeName == 'textarea')) {
                         $this->output .= ">";
-                        $this->output .= "{$this->nodeValue}</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
+                        $this->output .= ((!$this->preserveWhiteSpace) ? '' : "\n") .
+                            "{$this->nodeValue}" . ((!$this->preserveWhiteSpace) ? '' : "\n") .
+                            "</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
                     } else {
                         $this->output .= " />";
                         if ($this->preserveWhiteSpace) {
