@@ -555,9 +555,7 @@ class Child extends AbstractNode
                 if (!$inner) {
                     if (($this->nodeValue !== null) || ($this->nodeName == 'textarea')) {
                         $this->output .= ">";
-                        $this->output .= ((!$this->preserveWhiteSpace) ? '' : "\n") .
-                            "{$this->nodeValue}" . ((!$this->preserveWhiteSpace) ? '' : "\n") .
-                            "</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
+                        $this->output .= "{$this->nodeValue}</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
                     } else {
                         $this->output .= " />";
                         if ($this->preserveWhiteSpace) {
