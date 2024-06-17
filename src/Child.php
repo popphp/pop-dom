@@ -347,11 +347,11 @@ class Child extends AbstractNode
     /**
      * Set an attribute for the child element object
      *
-     * @param  string  $name
-     * @param  ?string $value
+     * @param  string $name
+     * @param  mixed  $value
      * @return Child
      */
-    public function setAttribute(string $name, ?string $value = null): Child
+    public function setAttribute(string $name, mixed $value = null): Child
     {
         $this->attributes[$name] = $value;
         return $this;
