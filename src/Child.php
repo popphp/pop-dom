@@ -347,26 +347,26 @@ class Child extends AbstractNode
     /**
      * Set an attribute for the child element object
      *
-     * @param  string $a
-     * @param  string $v
+     * @param  string  $name
+     * @param  ?string $value
      * @return Child
      */
-    public function setAttribute(string $a, string $v): Child
+    public function setAttribute(string $name, ?string $value = null): Child
     {
-        $this->attributes[$a] = $v;
+        $this->attributes[$name] = $value;
         return $this;
     }
 
     /**
      * Set an attribute or attributes for the child element object
      *
-     * @param  array $a
+     * @param  array $attributes
      * @return Child
      */
-    public function setAttributes(array $a): Child
+    public function setAttributes(array $attributes): Child
     {
-        foreach ($a as $name => $value) {
-            $this->attributes[$name] = $value;
+        foreach ($attributes as $name => $value) {
+            $this->setAttribute($name, $value);
         }
         return $this;
     }
@@ -379,7 +379,7 @@ class Child extends AbstractNode
      */
     public function hasAttribute(string $name): bool
     {
-        return (isset($this->attributes[$name]));
+        return isset($this->attributes[$name]);
     }
 
     /**
@@ -396,9 +396,9 @@ class Child extends AbstractNode
      * Get the attribute of the child object
      *
      * @param  string $name
-     * @return string|null
+     * @return ?string
      */
-    public function getAttribute(string $name): string|null
+    public function getAttribute(string $name): ?string
     {
         return $this->attributes[$name] ?? null;
     }
@@ -416,13 +416,13 @@ class Child extends AbstractNode
     /**
      * Remove an attribute from the child element object
      *
-     * @param  string $a
+     * @param  string $name
      * @return Child
      */
-    public function removeAttribute(string $a): Child
+    public function removeAttribute(string $name): Child
     {
-        if (isset($this->attributes[$a])) {
-            unset($this->attributes[$a]);
+        if (isset($this->attributes[$name])) {
+            unset($this->attributes[$name]);
         }
         return $this;
     }
@@ -493,7 +493,7 @@ class Child extends AbstractNode
         // Initialize the node.
         if ($this->nodeName == '#text') {
             $this->output .= ((!$this->preserveWhiteSpace) ?
-                    '' : "{$indent}{$this->indent}") . $this->nodeValue . ((!$this->preserveWhiteSpace) ? '' : "\n");
+                '' : "{$indent}{$this->indent}") . $this->nodeValue . ((!$this->preserveWhiteSpace) ? '' : "\n");
         } else {
             if (!$inner) {
                 $this->output .= ((!$this->preserveWhiteSpace) ?
