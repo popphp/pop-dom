@@ -4,7 +4,6 @@ pop-dom
 [![Build Status](https://github.com/popphp/pop-dom/workflows/phpunit/badge.svg)](https://github.com/popphp/pop-dom/actions)
 [![Coverage Status](http://cc.popphp.org/coverage.php?comp=pop-dom)](http://cc.popphp.org/pop-dom/)
 
-[![Join the chat at https://popphp.slack.com](https://media.popphp.org/img/slack.svg)](https://popphp.slack.com)
 [![Join the chat at https://discord.gg/TZjgT74U7E](https://media.popphp.org/img/discord.svg)](https://discord.gg/TZjgT74U7E)
 
 * [Overview](#overview)
@@ -18,7 +17,7 @@ Overview
 you can easily create or parse document nodes and their children and have control over node content and
 attributes.
 
-`pop-dom` is a component of the [Pop PHP Framework](http://www.popphp.org/).
+`pop-dom` is a component of the [Pop PHP Framework](https://www.popphp.org/).
 
 [Top](#pop-dom)
 
