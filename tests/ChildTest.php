@@ -238,9 +238,7 @@ class ChildTest extends TestCase
         $this->assertStringContainsString(']]>', $content);
     }
 
-    /**
-     * @runInSeparateProcess
-     */
+    #[runInSeparateProcess]
     public function testOutput()
     {
         $child = new Child('h1', 'Header');

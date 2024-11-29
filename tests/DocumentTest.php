@@ -82,9 +82,7 @@ class DocumentTest extends TestCase
         $this->assertStringContainsString('<h1>Header</h1>', (string)$doc);
     }
 
-    /**
-     * @runInSeparateProcess
-     */
+    #[runInSeparateProcess]
     public function testOutput()
     {
         $doc = new Document(Document::HTML, new Child('title', 'Hello World'));
