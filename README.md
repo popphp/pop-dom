@@ -31,7 +31,7 @@ Install `pop-dom` using Composer.
 Or, require it in your composer.json file
 
     "require": {
-        "popphp/pop-dom" : "^4.0.0"
+        "popphp/pop-dom" : "^4.0.4"
     }
 
 [Top](#pop-dom)
