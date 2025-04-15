@@ -301,10 +301,10 @@ class Child extends AbstractNode
     /**
      * Set the child node value
      *
-     * @param  string $value
+     * @param  ?string $value
      * @return Child
      */
-    public function setNodeValue(string $value): Child
+    public function setNodeValue(?string $value = null): Child
     {
         $this->nodeValue = $value;
         return $this;
