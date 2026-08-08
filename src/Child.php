@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
  */
 
@@ -21,9 +21,9 @@ use RecursiveIteratorIterator;
  * @category   Pop
  * @package    Pop\Dom
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
- * @version    4.0.7
+ * @version    4.1.0
  */
 class Child extends AbstractNode
 {
@@ -112,9 +112,9 @@ class Child extends AbstractNode
      * Static method to parse an XML/HTML string
      *
      * @param  string $string
-     * @return Child|array
+     * @return Child|array|null
      */
-    public static function parseString(string $string): Child|array
+    public static function parseString(string $string): Child|array|null
     {
         $doc = new \DOMDocument();
         $doc->loadHTML($string);
@@ -194,6 +194,10 @@ class Child extends AbstractNode
                 }
             }
         }
+        if ($parent === null) {
+            return null;
+        }
+
         while ($parent->getParent() !== null) {
             $parent = $parent->getParent();
         }
@@ -213,9 +217,9 @@ class Child extends AbstractNode
      *
      * @param  string $file
      * @throws Exception
-     * @return Child
+     * @return Child|array|null
      */
-    public static function parseFile(string $file): Child
+    public static function parseFile(string $file): Child|array|null
     {
         if (!file_exists($file)) {
             throw new Exception('Error: That file does not exist.');
@@ -253,13 +257,7 @@ class Child extends AbstractNode
     {
         $content = $this->render(0, null, true);
         if ($ignoreWhiteSpace) {
-            $content = preg_replace('/\s+/', ' ', str_replace(["\n", "\r", "\t"], ["", "", ""], trim($content)));
-            $content = preg_replace('/\s*\.\s*/', '. ', $content);
-            $content = preg_replace('/\s*\?\s*/', '? ', $content);
-            $content = preg_replace('/\s*\!\s*/', '! ', $content);
-            $content = preg_replace('/\s*,\s*/', ', ', $content);
-            $content = preg_replace('/\s*\:\s*/', ': ', $content);
-            $content = preg_replace('/\s*\;\s*/', '; ', $content);
+            $content = self::normalizeWhiteSpace($content);
         }
         return $content;
     }
@@ -275,14 +273,26 @@ class Child extends AbstractNode
         $content = strip_tags($this->render(0, null, true));
 
         if ($ignoreWhiteSpace) {
-            $content = preg_replace('/\s+/', ' ', str_replace(["\n", "\r", "\t"], ["", "", ""], trim($content)));
-            $content = preg_replace('/\s*\.\s*/', '. ', $content);
-            $content = preg_replace('/\s*\?\s*/', '? ', $content);
-            $content = preg_replace('/\s*\!\s*/', '! ', $content);
-            $content = preg_replace('/\s*,\s*/', ', ', $content);
-            $content = preg_replace('/\s*\:\s*/', ': ', $content);
-            $content = preg_replace('/\s*\;\s*/', '; ', $content);
+            $content = self::normalizeWhiteSpace($content);
         }
+        return $content;
+    }
+
+    /**
+     * Collapse whitespace and normalize spacing around sentence punctuation
+     *
+     * @param  string $content
+     * @return string
+     */
+    private static function normalizeWhiteSpace(string $content): string
+    {
+        $content = preg_replace('/\s+/', ' ', str_replace(["\n", "\r", "\t"], ["", "", ""], trim($content)));
+        $content = preg_replace('/\s*\.\s*/', '. ', $content);
+        $content = preg_replace('/\s*\?\s*/', '? ', $content);
+        $content = preg_replace('/\s*\!\s*/', '! ', $content);
+        $content = preg_replace('/\s*,\s*/', ', ', $content);
+        $content = preg_replace('/\s*\:\s*/', ': ', $content);
+        $content = preg_replace('/\s*\;\s*/', '; ', $content);
         return $content;
     }
 
@@ -473,19 +483,17 @@ class Child extends AbstractNode
     {
         // Initialize child object properties and variables.
         $this->output = '';
-        $this->indent = ($this->indent === null) ? str_repeat('    ', $depth) : $this->indent;
+        $ownIndent    = $this->indent ?? str_repeat('    ', $depth);
         $attribs      = '';
         $attribAry    = [];
 
-        if ($this->cData) {
-            $this->nodeValue = '<![CDATA[' . $this->nodeValue . ']]>';
-        }
+        $nodeValue = $this->cData ? '<![CDATA[' . $this->nodeValue . ']]>' : $this->nodeValue;
 
         // Format child attributes, if applicable.
         if ($this->hasAttributes()) {
             $attributes = $this->getAttributes();
             foreach ($attributes as $key => $value) {
-                $attribAry[] = $key . "=\"" . $value . "\"";
+                $attribAry[] = $key . "=\"" . htmlspecialchars((string)$value, ENT_QUOTES) . "\"";
             }
             $attribs = ' ' . implode(' ', $attribAry);
         }
@@ -493,18 +501,18 @@ class Child extends AbstractNode
         // Initialize the node.
         if ($this->nodeName == '#text') {
             $this->output .= ((!$this->preserveWhiteSpace) ?
-                '' : "{$indent}{$this->indent}") . $this->nodeValue . ((!$this->preserveWhiteSpace) ? '' : "\n");
+                '' : "{$indent}{$ownIndent}") . $nodeValue . ((!$this->preserveWhiteSpace) ? '' : "\n");
         } else {
             if (!$inner) {
                 $this->output .= ((!$this->preserveWhiteSpace) ?
-                        '' : "{$indent}{$this->indent}") . "<{$this->nodeName}{$attribs}";
+                        '' : "{$indent}{$ownIndent}") . "<{$this->nodeName}{$attribs}";
             }
 
-            if (($indent === null) && ($this->indent !== null)) {
-                $indent     = $this->indent;
-                $origIndent = $this->indent;
+            if ($indent === null) {
+                $indent     = $ownIndent;
+                $origIndent = $ownIndent;
             } else {
-                $origIndent = $indent . $this->indent;
+                $origIndent = $indent . $ownIndent;
             }
 
             // If current child element has child nodes, format and render.
@@ -519,9 +527,9 @@ class Child extends AbstractNode
 
                 // Render node value before the child nodes.
                 if (!$this->childrenFirst) {
-                    if ($this->nodeValue !== null) {
+                    if ($nodeValue !== null) {
                         $this->output .= ((!$this->preserveWhiteSpace) ?
-                                '' : str_repeat('    ', $newDepth) . "{$indent}") . "{$this->nodeValue}\n";
+                                '' : str_repeat('    ', $newDepth) . "{$indent}") . "{$nodeValue}\n";
                     }
                     foreach ($this->childNodes as $child) {
                         $this->output .= $child->render($newDepth, $indent);
@@ -539,10 +547,10 @@ class Child extends AbstractNode
                         $this->output .= $child->render($newDepth, $indent);
                     }
                     if (!$inner) {
-                        if ($this->nodeValue !== null) {
+                        if ($nodeValue !== null) {
                             $this->output .= ((!$this->preserveWhiteSpace) ?
                                     '' : str_repeat('    ', $newDepth) . "{$indent}") .
-                                "{$this->nodeValue}" . ((!$this->preserveWhiteSpace) ?
+                                "{$nodeValue}" . ((!$this->preserveWhiteSpace) ?
                                     '' : "\n{$origIndent}") . "</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
                         } else {
                             $this->output .= ((!$this->preserveWhiteSpace) ?
@@ -553,17 +561,17 @@ class Child extends AbstractNode
             // Else, render the child node.
             } else {
                 if (!$inner) {
-                    if (($this->nodeValue !== null) || ($this->nodeName == 'textarea')) {
+                    if (($nodeValue !== null) || ($this->nodeName == 'textarea')) {
                         $this->output .= ">";
-                        $this->output .= "{$this->nodeValue}</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
+                        $this->output .= "{$nodeValue}</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
                     } else {
                         $this->output .= " />";
                         if ($this->preserveWhiteSpace) {
                             $this->output .= "\n";
                         }
                     }
-                } else if (!empty($this->nodeValue)) {
-                    $this->output .= $this->nodeValue;
+                } else if (!empty($nodeValue)) {
+                    $this->output .= $nodeValue;
                 }
             }
         }

@@ -48,6 +48,19 @@ HTML;
         $doc->addChild(Child::parseFile(__DIR__ . '/tmp/bad.html'));
     }
 
+    public function testParseFileWithMultipleTopLevelNodesReturnsArray()
+    {
+        $children = Child::parseFile(__DIR__ . '/tmp/fragment.html');
+        $this->assertIsArray($children);
+        $this->assertEquals('one', $children[0]->getNodeValue());
+        $this->assertEquals('two', $children[1]->getNodeValue());
+    }
+
+    public function testParseStringWithNoElementsReturnsNull()
+    {
+        $this->assertNull(Child::parseString('   '));
+    }
+
 
     public function testParsePartial()
     {

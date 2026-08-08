@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
  */
 
@@ -19,9 +19,9 @@ namespace Pop\Dom;
  * @category   Pop
  * @package    Pop\Dom
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
- * @version    4.0.7
+ * @version    4.1.0
  */
 class Document extends AbstractNode
 {
@@ -197,11 +197,7 @@ class Document extends AbstractNode
      */
     public function render(): string
     {
-        $this->output = null;
-
-        if ($this->doctype !== null) {
-            $this->output .= str_replace('[{charset}]', $this->charset, Document::$doctypes[$this->doctype]);
-        }
+        $this->output = str_replace('[{charset}]', $this->charset, Document::$doctypes[$this->doctype]);
 
         foreach ($this->childNodes as $child) {
             $this->output .= $child->render(0, $this->indent);

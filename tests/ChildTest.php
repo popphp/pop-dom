@@ -80,6 +80,17 @@ class ChildTest extends TestCase
         $this->assertEquals(0, count($child->getChildren()));
     }
 
+    public function testRemoveChildReindexesRemainingChildren()
+    {
+        $child = new Child('h1', 'Hello World');
+        $child->addChild(new Child('a'));
+        $child->addChild(new Child('b'));
+        $child->addChild(new Child('c'));
+        $child->removeChild(0);
+        $this->assertEquals('b', $child->getChild(0)->getNodeName());
+        $this->assertEquals('c', $child->getChild(1)->getNodeName());
+    }
+
     public function testAttributes()
     {
         $child = new Child('h1', 'Hello World');
@@ -120,6 +131,22 @@ class ChildTest extends TestCase
         $child->addChild(new Child('p', 'Paragraph'));
         $this->assertStringContainsString('<h1 id="header" style="display: block;">', (string)$child);
         $this->assertStringContainsString('<p>Paragraph</p>', (string)$child);
+    }
+
+    public function testRenderChildrenFirstNoNodeValue()
+    {
+        $parent = new Child('div');
+        $parent->setChildrenFirst(true);
+        $parent->addChild(new Child('p', 'x'));
+        $this->assertEquals("<div>\n    <p>x</p>\n</div>\n", $parent->render());
+    }
+
+    public function testRenderWithChildrenAndNoPreservedWhiteSpace()
+    {
+        $parent = new Child('div');
+        $parent->preserveWhiteSpace(false);
+        $parent->addChild(new Child('p', 'x'));
+        $this->assertEquals("<div>    <p>x</p>\n</div>", $parent->render());
     }
 
     public function testRenderNoNodeValue()
@@ -227,6 +254,14 @@ class ChildTest extends TestCase
         $this->assertEquals('Hello World', $child->getNodeValue());
     }
 
+    public function testAttributeValueIsEscaped()
+    {
+        $child = new Child('input', null, [
+            'attributes' => ['value' => 'he said "hi"']
+        ]);
+        $this->assertStringContainsString('value="he said &quot;hi&quot;"', (string)$child);
+    }
+
     public function testCData()
     {
         $child = new Child('note', "Here's some crazy TEXT!<br />");
@@ -236,6 +271,26 @@ class ChildTest extends TestCase
         $this->assertTrue($child->isCData());
         $this->assertStringContainsString('<![CDATA[', $content);
         $this->assertStringContainsString(']]>', $content);
+    }
+
+    public function testCDataRenderIsIdempotent()
+    {
+        $child = new Child('note', 'hello');
+        $child->setAsCData();
+
+        $first  = $child->render();
+        $second = $child->render();
+        $this->assertEquals($first, $second);
+        $this->assertStringNotContainsString('<![CDATA[<![CDATA[', $second);
+    }
+
+    public function testRenderRecomputesIndentAtDifferentDepths()
+    {
+        $child = new Child('div', 'x');
+        $depth0 = $child->render(0);
+        $depth2 = $child->render(2);
+        $this->assertFalse(str_starts_with($depth0, str_repeat('    ', 2)));
+        $this->assertStringStartsWith(str_repeat('    ', 2), $depth2);
     }
 
     #[runInSeparateProcess]

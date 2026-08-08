@@ -18,6 +18,12 @@ class DocumentTest extends TestCase
         $this->assertStringContainsString('<!DOCTYPE html>', $doc->getDoctype());
     }
 
+    public function testGetIndentDefaultsToNull()
+    {
+        $doc = new Document();
+        $this->assertNull($doc->getIndent());
+    }
+
     public function testSetDoctype()
     {
         $doc = new Document();
