@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (https://www.popphp.org/)
  *
@@ -148,7 +149,7 @@ class Child extends AbstractNode
                             if (($endElement) && ($child->getParent() !== null) && ($node->previousSibling !== null)) {
                                 $prev = $node->previousSibling->nodeName;
                                 $par  = $child->getParent();
-                                while (($par !== null) && ($prev != $par->getNodeName())) {
+                                while (($par instanceof Child) && ($prev != $par->getNodeName())) {
                                     $par = $par->getParent();
                                 }
                                 if ($par === null) {
@@ -173,7 +174,7 @@ class Child extends AbstractNode
                             $endElement = false;
                         // up
                         } else if ($dit->getDepth() < $lastDepth) {
-                            while ($parent->getNodeName() != $node->parentNode->nodeName) {
+                            while (($parent instanceof Child) && ($parent->getNodeName() != $node->parentNode->nodeName)) {
                                 $parent = $parent->getParent();
                             }
                             //$parent = $parent->getParent();
