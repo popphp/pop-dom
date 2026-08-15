@@ -31,6 +31,22 @@ HTML;
         $this->assertStringContainsString('<p class="special-p">', $render);
     }
 
+    public function testParseStringReattachesInterleavedSiblingText()
+    {
+        $html = <<<HTML
+<html>
+    <body>
+        <p>How are <em>YOU</em> doing <strong><em>today</em></strong>???</p>
+        <p class="special-p">Some <strong class="bold">more</strong> text.</p>
+    </body>
+</html>
+HTML;
+        $body = Child::parseString($html)->getChild(1);
+
+        $this->assertEquals('How are YOU doing today? ? ? ', $body->getChild(0)->getTextContent(true));
+        $this->assertEquals('Some more text. ', $body->getChild(1)->getTextContent(true));
+    }
+
     public function testParseFile()
     {
         $doc = new Document(Document::HTML);

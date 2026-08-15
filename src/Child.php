@@ -133,13 +133,8 @@ class Child extends AbstractNode
 
         foreach($dit as $node) {
             if (($node->nodeType == XML_ELEMENT_NODE) || ($node->nodeType == XML_TEXT_NODE)) {
-                $attribs = [];
-                if ($node->attributes !== null) {
-                    for ($i = 0; $i < $node->attributes->length; $i++) {
-                        $name = $node->attributes->item($i)->name;
-                        $attribs[$name] = $node->getAttribute($name);
-                    }
-                }
+                $attribs = self::extractAttributes($node);
+
                 if ($parent === null) {
                     $parent = new Child($node->nodeName);
                 } else {
@@ -147,17 +142,7 @@ class Child extends AbstractNode
                         $nodeValue = trim($node->nodeValue);
                         if (!empty($nodeValue)) {
                             if (($endElement) && ($child->getParent() !== null) && ($node->previousSibling !== null)) {
-                                $prev = $node->previousSibling->nodeName;
-                                $par  = $child->getParent();
-                                while (($par instanceof Child) && ($prev != $par->getNodeName())) {
-                                    $par = $par->getParent();
-                                }
-                                if ($par === null) {
-                                    $par = $child->getParent();
-                                } else {
-                                    $par = $par->getParent();
-                                }
-                                $par->addChild(new Child('#text', $nodeValue));
+                                self::appendSiblingText($child, $node, $nodeValue);
                             } else {
                                 $child->setNodeValue($nodeValue);
                                 $endElement = true;
@@ -174,10 +159,7 @@ class Child extends AbstractNode
                             $endElement = false;
                         // up
                         } else if ($dit->getDepth() < $lastDepth) {
-                            while (($parent instanceof Child) && ($parent->getNodeName() != $node->parentNode->nodeName)) {
-                                $parent = $parent->getParent();
-                            }
-                            //$parent = $parent->getParent();
+                            $parent = self::climbToNamedParent($parent, $node->parentNode->nodeName);
                             $child  = new Child($node->nodeName);
                             $parent->addChild($child);
                             $endElement = false;
@@ -226,6 +208,57 @@ class Child extends AbstractNode
             throw new Exception('Error: That file does not exist.');
         }
         return self::parseString(file_get_contents($file));
+    }
+
+    /**
+     * Extract a DOM node's attributes as a name/value array
+     *
+     * @param  \DOMNode $node
+     * @return array
+     */
+    private static function extractAttributes(\DOMNode $node): array
+    {
+        $attribs = [];
+        if ($node instanceof \DOMElement) {
+            for ($i = 0; $i < $node->attributes->length; $i++) {
+                $name = $node->attributes->item($i)->name;
+                $attribs[$name] = $node->getAttribute($name);
+            }
+        }
+        return $attribs;
+    }
+
+    /**
+     * Climb the parent chain from $start until a Child node named $targetName is found
+     *
+     * @param  AbstractNode|null $start
+     * @param  string            $targetName
+     * @return AbstractNode|null
+     */
+    private static function climbToNamedParent(AbstractNode|null $start, string $targetName): AbstractNode|null
+    {
+        $node = $start;
+        while (($node instanceof Child) && ($node->getNodeName() != $targetName)) {
+            $node = $node->getParent();
+        }
+        return $node;
+    }
+
+    /**
+     * Reattach a stray text node to the appropriate ancestor of $child, based on the DOM node
+     * that precedes it as a sibling
+     *
+     * @param  Child    $child
+     * @param  \DOMNode $node
+     * @param  string   $nodeValue
+     * @return void
+     */
+    private static function appendSiblingText(Child $child, \DOMNode $node, string $nodeValue): void
+    {
+        $prev = $node->previousSibling->nodeName;
+        $par  = self::climbToNamedParent($child->getParent(), $prev);
+        $par  = ($par === null) ? $child->getParent() : $par->getParent();
+        $par->addChild(new Child('#text', $nodeValue));
     }
 
     /**
@@ -487,6 +520,8 @@ class Child extends AbstractNode
         $ownIndent    = $this->indent ?? str_repeat('    ', $depth);
         $attribs      = '';
         $attribAry    = [];
+        $nl           = $this->preserveWhiteSpace ? "\n" : '';
+        $leadIndent   = $this->preserveWhiteSpace ? "{$indent}{$ownIndent}" : '';
 
         $nodeValue = $this->cData ? '<![CDATA[' . $this->nodeValue . ']]>' : $this->nodeValue;
 
@@ -501,12 +536,10 @@ class Child extends AbstractNode
 
         // Initialize the node.
         if ($this->nodeName == '#text') {
-            $this->output .= ((!$this->preserveWhiteSpace) ?
-                '' : "{$indent}{$ownIndent}") . $nodeValue . ((!$this->preserveWhiteSpace) ? '' : "\n");
+            $this->output .= $leadIndent . $nodeValue . $nl;
         } else {
             if (!$inner) {
-                $this->output .= ((!$this->preserveWhiteSpace) ?
-                        '' : "{$indent}{$ownIndent}") . "<{$this->nodeName}{$attribs}";
+                $this->output .= $leadIndent . "<{$this->nodeName}{$attribs}";
             }
 
             if ($indent === null) {
@@ -516,31 +549,26 @@ class Child extends AbstractNode
                 $origIndent = $indent . $ownIndent;
             }
 
+            $closeIndent = $this->preserveWhiteSpace ? $origIndent : '';
+
             // If current child element has child nodes, format and render.
             if (count($this->childNodes) > 0) {
                 if (!$inner) {
-                    $this->output .= ">";
-                    if ($this->preserveWhiteSpace) {
-                        $this->output .= "\n";
-                    }
+                    $this->output .= ">" . $nl;
                 }
-                $newDepth = $depth + 1;
+                $newDepth    = $depth + 1;
+                $valueIndent = $this->preserveWhiteSpace ? str_repeat('    ', $newDepth) . "{$indent}" : '';
 
                 // Render node value before the child nodes.
                 if (!$this->childrenFirst) {
                     if ($nodeValue !== null) {
-                        $this->output .= ((!$this->preserveWhiteSpace) ?
-                                '' : str_repeat('    ', $newDepth) . "{$indent}") . "{$nodeValue}\n";
+                        $this->output .= $valueIndent . "{$nodeValue}\n";
                     }
                     foreach ($this->childNodes as $child) {
                         $this->output .= $child->render($newDepth, $indent);
                     }
                     if (!$inner) {
-                        if (!$this->preserveWhiteSpace) {
-                            $this->output .= "</{$this->nodeName}>";
-                        } else {
-                            $this->output .= "{$origIndent}</{$this->nodeName}>\n";
-                        }
+                        $this->output .= $closeIndent . "</{$this->nodeName}>" . $nl;
                     }
                 // Else, render child nodes first, then node value.
                 } else {
@@ -549,13 +577,10 @@ class Child extends AbstractNode
                     }
                     if (!$inner) {
                         if ($nodeValue !== null) {
-                            $this->output .= ((!$this->preserveWhiteSpace) ?
-                                    '' : str_repeat('    ', $newDepth) . "{$indent}") .
-                                "{$nodeValue}" . ((!$this->preserveWhiteSpace) ?
-                                    '' : "\n{$origIndent}") . "</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
+                            $this->output .= $valueIndent . "{$nodeValue}" . $nl . $closeIndent .
+                                "</{$this->nodeName}>" . $nl;
                         } else {
-                            $this->output .= ((!$this->preserveWhiteSpace) ?
-                                    '' : "{$origIndent}") . "</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
+                            $this->output .= $closeIndent . "</{$this->nodeName}>" . $nl;
                         }
                     }
                 }
@@ -564,12 +589,9 @@ class Child extends AbstractNode
                 if (!$inner) {
                     if (($nodeValue !== null) || ($this->nodeName == 'textarea')) {
                         $this->output .= ">";
-                        $this->output .= "{$nodeValue}</{$this->nodeName}>" . ((!$this->preserveWhiteSpace) ? '' : "\n");
+                        $this->output .= "{$nodeValue}</{$this->nodeName}>" . $nl;
                     } else {
-                        $this->output .= " />";
-                        if ($this->preserveWhiteSpace) {
-                            $this->output .= "\n";
-                        }
+                        $this->output .= " />" . $nl;
                     }
                 } else if (!empty($nodeValue)) {
                     $this->output .= $nodeValue;
