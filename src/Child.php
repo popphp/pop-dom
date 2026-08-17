@@ -117,6 +117,10 @@ class Child extends AbstractNode
      */
     public static function parseString(string $string): Child|array|null
     {
+        if (trim($string) === '') {
+            return null;
+        }
+
         $doc = new \DOMDocument();
         $doc->loadHTML($string);
 
